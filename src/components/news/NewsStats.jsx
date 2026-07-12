@@ -18,68 +18,14 @@ import {
   - المنتهية
 */
 
-const NewsStats = ({ news }) => {
+const NewsStats = ({ cards }) => {
 
-  // إجمالي الأخبار
-  const totalNews = news.length;
-
-  // الأخبار المنشورة
-  const publishedNews =
-    news.filter(
-      item => item.status === 'Published'
-    ).length;
-
-  // الأخبار المبلغ عنها
-  const reportedNews =
-    news.filter(
-      item => item.status === 'Reported'
-    ).length;
-
-  // الأخبار المميزة
-  const featuredNews =
-    news.filter(
-      item => item.status === 'Featured'
-    ).length;
-
-  // الأخبار المنتهية
-  const expiredNews =
-    news.filter(
-      item => item.status === 'Expired'
-    ).length;
-
-  // بيانات الكروت
   const stats = [
-
-    {
-      title: 'Total News',
-      value: totalNews,
-      icon: <Newspaper size={24} />
-    },
-
-    {
-      title: 'Published',
-      value: publishedNews,
-      icon: <CheckCircle size={24} />
-    },
-
-    {
-      title: 'Reported',
-      value: reportedNews,
-      icon: <AlertTriangle size={24} />
-    },
-
-    {
-      title: 'Featured',
-      value: featuredNews,
-      icon: <Star size={24} />
-    },
-
-    {
-      title: 'Expired',
-      value: expiredNews,
-      icon: <Clock size={24} />
-    }
-
+    { title: 'Total News', value: cards.total_news, icon: <Newspaper size={24} /> },
+    { title: 'Published', value: cards.published, icon: <CheckCircle size={24} /> },
+    { title: 'Under Review', value: cards.under_review, icon: <AlertTriangle size={24} /> },
+    { title: 'Archived', value: cards.archived, icon: <Star size={24} /> },
+    { title: 'Rejected', value: cards.rejected, icon: <Clock size={24} /> }
   ];
 
   return (

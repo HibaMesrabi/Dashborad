@@ -1,364 +1,422 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
+import {
+  UserCircle,
+  Save,
+  Lock
+} from 'lucide-react';
 
 /*
-  إعدادات حساب الأدمن
+  Account Settings
 
-  تسمح للأدمن بتعديل:
+  مسؤول عن:
+  - عرض معلومات حساب الأدمن
+  - تغيير كلمة المرور
+  - حفظ كلمة المرور الجديدة
 
-  - الاسم
-  - البريد الإلكتروني
-  - كلمة المرور
-  - الصورة الشخصية
-
-  حالياً البيانات محلية فقط،
-  ولاحقاً سيتم ربطها مع الـ Backend.
+  الاسم والبريد الإلكتروني
+  للعرض فقط ولا يمكن تعديلهما.
 */
 
 const AccountSettings = () => {
-
   /*
-    بيانات الحساب
+    الاسم الحالي
   */
-
-  const [name, setName] =
+  const [fullName] =
     useState('Admin');
-
-  const [email, setEmail] =
-    useState('admin@platform.com');
-
-  const [password, setPassword] =
-    useState('');
-
   /*
-    الصورة المختارة
+    البريد الإلكتروني الحالي
   */
-
-  const [image, setImage] =
+  const [email] =
+    useState('admin@gmail.com');
+  /*
+    الصورة الشخصية
+    سيتم استخدامها لاحقاً
+  */
+  const [avatar] =
     useState(null);
-
   /*
-    تغيير الصورة
+    كلمة المرور الحالية
   */
-
-  const handleImageChange = (event) => {
-
-    const file = event.target.files[0];
-
-    if (file) {
-
-      setImage(
-        URL.createObjectURL(file)
-      );
-
-    }
-
-  };
-
+  const [currentPassword,
+    setCurrentPassword] =
+    useState('');
+  /*
+    كلمة المرور الجديدة
+  */
+  const [newPassword,
+    setNewPassword] =
+    useState('');
+  /*
+    تأكيد كلمة المرور الجديدة
+  */
+  const [confirmPassword,
+    setConfirmPassword] =
+    useState('');
+  /*
+    مرجع لاختيار الصورة
+    سيستخدم لاحقاً
+  */
+  const fileRef =
+    useRef(null);
   /*
     حفظ البيانات
-
-    لاحقاً سيتم إرسالها للـ Backend
+    تغيير كلمة المرور
   */
-
   const handleSave = () => {
-
-    console.log({
-
-      name,
-
-      email,
-
-      password,
-
-      image
-
-    });
-
-    alert(
-      'Account settings saved successfully.'
+    console.log(
+      'Change Password',
+      {
+        currentPassword,
+        newPassword,
+        confirmPassword
+      }
     );
-
   };
-
   return (
-
-    <div
+    <section
       className="
-        bg-[#112D4E]
+        bg-gradient-to-br
+        from-[#183C69]
+        via-[#204A7A]
+        to-[#295789]
+        border
+        border-white/10
         rounded-3xl
-        border border-white/10
-        p-8
-        shadow-xl
+        p-6
+        md:p-8
+        mb-6
+        shadow-2xl
+        hover:border-blue-400/40
+        transition-all
+        duration-300
       "
     >
-
-      {/* عنوان البطاقة */}
-
-      <h2
-        className="
-          text-2xl
-          font-bold
-          text-white
-          mb-8
-        "
-      >
-        Account Settings
-      </h2>
-
-      {/* الصورة الشخصية */}
-
-      <div
-        className="
-          flex
-          items-center
-          gap-6
-          mb-8
-        "
-      >
-
+      {/* عنوان القسم */}
+      <div className="flex items-center gap-4 mb-8">
+        {/* أيقونة القسم */}
         <div
           className="
-            w-24
-            h-24
-            rounded-full
-            overflow-hidden
-            bg-[#071A33]
-            border
-            border-white/10
+            w-12
+            h-12
+            rounded-2xl
+            bg-gradient-to-br
+            from-blue-500
+            to-blue-600
             flex
             items-center
             justify-center
+            text-white
+            shadow-lg
           "
         >
-
-          {image ? (
-
-            <img
-
-              src={image}
-
-              alt="Profile"
-
-              className="
-                w-full
-                h-full
-                object-cover
-              "
-
-            />
-
-          ) : (
-
-            <span
-              className="
-                text-slate-400
-                text-sm
-              "
-            >
-              No Image
-            </span>
-
-          )}
-
+          <UserCircle size={22} />
         </div>
-
+        {/* اسم القسم */}
         <div>
-
-          <label
+          <h2
             className="
-              cursor-pointer
-              px-5
-              py-2
-              rounded-xl
-              bg-orange-500
+              text-2xl
+              font-bold
               text-white
-              hover:bg-orange-600
-              transition
             "
           >
-            Change Picture
-
-            <input
-
-              type="file"
-
-              accept="image/*"
-
-              onChange={handleImageChange}
-
-              className="hidden"
-
-            />
-
-          </label>
-
+            Account Settings
+          </h2>
+          <p
+            className="
+              text-slate-100
+              mt-1
+            "
+          >
+            Manage your administrator account.
+          </p>
         </div>
-
       </div>
-
-      {/* الحقول */}
-
+      {/* معلومات الحساب */}
       <div
         className="
           grid
+          grid-cols-1
           md:grid-cols-2
           gap-6
+          mb-8
         "
       >
 
         {/* الاسم */}
-
         <div>
-
           <label
             className="
               block
-              text-slate-300
+              text-sm
+              font-medium
+              text-slate-100
               mb-2
             "
           >
             Full Name
           </label>
-
           <input
-
             type="text"
-
-            value={name}
-
-            onChange={(e) =>
-              setName(e.target.value)
-            }
-
+            value={fullName}
+            readOnly
             className="
               w-full
               h-12
               px-4
-              rounded-xl
-              bg-[#071A33]
-              border border-white/10
+              rounded-2xl
+              bg-[#0A192F]/70
+              border
+              border-white/10
               text-white
+              cursor-not-allowed
               outline-none
-              focus:border-orange-500
             "
-
           />
-
         </div>
-
-        {/* البريد */}
-
+        {/* البريد الإلكتروني */}
         <div>
-
           <label
             className="
               block
-              text-slate-300
+              text-sm
+              font-medium
+              text-slate-100
               mb-2
             "
           >
             Email
           </label>
-
           <input
-
             type="email"
-
             value={email}
-
-            onChange={(e) =>
-              setEmail(e.target.value)
-            }
-
+            readOnly
             className="
               w-full
               h-12
               px-4
-              rounded-xl
-              bg-[#071A33]
-              border border-white/10
+              rounded-2xl
+              bg-[#0A192F]/70
+              border
+              border-white/10
               text-white
+              cursor-not-allowed
               outline-none
-              focus:border-orange-500
             "
-
           />
+        </div>
+      </div>
+            {/* تغيير كلمة المرور */}
+      <div
+        className="
+          p-6
+          rounded-3xl
+          bg-[#0A192F]/60
+          border
+          border-white/10
+        "
+      >
+
+        {/* عنوان القسم */}
+
+        <div className="flex items-center gap-3 mb-5">
+
+          <Lock
+            size={18}
+            className="text-orange-400"
+          />
+
+          <h3
+            className="
+              text-xl
+              font-semibold
+              text-white
+            "
+          >
+            Change Password
+          </h3>
+
+        </div>
+
+        {/* حقول كلمة المرور */}
+
+        <div
+          className="
+            grid
+            grid-cols-1
+            md:grid-cols-3
+            gap-4
+          "
+        >
+
+          {/* كلمة المرور الحالية */}
+
+          <div>
+
+            <label
+              className="
+                block
+                text-sm
+                font-medium
+                text-slate-100
+                mb-2
+              "
+            >
+              Current Password
+            </label>
+
+            <input
+              type="password"
+              value={currentPassword}
+              onChange={(e) =>
+                setCurrentPassword(
+                  e.target.value
+                )
+              }
+              className="
+                w-full
+                h-12
+                px-4
+                rounded-2xl
+                bg-[#0A192F]
+                border
+                border-[#1E3A5F]
+                text-white
+                placeholder:text-slate-300
+                outline-none
+                focus:border-orange-400
+                transition
+              "
+            />
+
+          </div>
+
+          {/* كلمة المرور الجديدة */}
+
+          <div>
+
+            <label
+              className="
+                block
+                text-sm
+                font-medium
+                text-slate-100
+                mb-2
+              "
+            >
+              New Password
+            </label>
+
+            <input
+              type="password"
+              value={newPassword}
+              onChange={(e) =>
+                setNewPassword(
+                  e.target.value
+                )
+              }
+              className="
+                w-full
+                h-12
+                px-4
+                rounded-2xl
+                bg-[#0A192F]
+                border
+                border-[#1E3A5F]
+                text-white
+                placeholder:text-slate-300
+                outline-none
+                focus:border-orange-400
+                transition
+              "
+            />
+
+          </div>
+
+          {/* تأكيد كلمة المرور */}
+
+          <div>
+
+            <label
+              className="
+                block
+                text-sm
+                font-medium
+                text-slate-100
+                mb-2
+              "
+            >
+              Confirm Password
+            </label>
+
+            <input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) =>
+                setConfirmPassword(
+                  e.target.value
+                )
+              }
+              className="
+                w-full
+                h-12
+                px-4
+                rounded-2xl
+                bg-[#0A192F]
+                border
+                border-[#1E3A5F]
+                text-white
+                placeholder:text-slate-300
+                outline-none
+                focus:border-orange-400
+                transition
+              "
+            />
+
+          </div>
 
         </div>
 
       </div>
 
-      {/* كلمة المرور */}
+      {/* زر حفظ كلمة المرور */}
 
-      <div className="mt-6">
-
-        <label
-          className="
-            block
-            text-slate-300
-            mb-2
-          "
-        >
-          New Password
-        </label>
-
-        <input
-
-          type="password"
-
-          value={password}
-
-          onChange={(e) =>
-            setPassword(e.target.value)
-          }
-
-          placeholder="Enter new password"
-
-          className="
-            w-full
-            h-12
-            px-4
-            rounded-xl
-            bg-[#071A33]
-            border border-white/10
-            text-white
-            outline-none
-            focus:border-orange-500
-          "
-
-        />
-
-      </div>
-
-      {/* زر الحفظ */}
-
-      <div className="mt-8">
+      <div
+        className="
+          flex
+          justify-end
+          mt-6
+        "
+      >
 
         <button
-
           onClick={handleSave}
-
           className="
-            px-8
+            flex
+            items-center
+            gap-2
+            px-6
             py-3
             rounded-xl
-            bg-orange-500
+            bg-gradient-to-r
+            from-blue-500
+            to-blue-600
+            hover:from-blue-600
+            hover:to-blue-700
             text-white
             font-semibold
-            hover:bg-orange-600
+            shadow-lg
             transition
           "
-
         >
+
+          <Save size={18} />
+
           Save Changes
+
         </button>
-
       </div>
-
-    </div>
-
+    </section>
   );
-
 };
-
 export default AccountSettings;

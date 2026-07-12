@@ -1,6 +1,7 @@
 import React from 'react';
 import AdminLayout from '../../layouts/AdminLayout';
 import { useNavigate } from 'react-router-dom';// استدعاء الكروت
+import { useState, useEffect } from 'react';
 
 // الأيقونات
 import {
@@ -10,7 +11,9 @@ import {
   AlertTriangle,
   Package,
   BarChart
-} from 'lucide-react'; 
+} from 'lucide-react';
+
+import api from '../../api/axios';
 
 // استدعاء المخطط
 import AnalyticsChart from '../../components/dashboard/AnalyticsChart';
@@ -26,50 +29,46 @@ const AdminDashboard = () => {
 
   const navigate = useNavigate(); // للتنقل بين الصفحات
 
-  // بيانات الكروت
+  const [statistics, setStatistics] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.get('/admin/overview')
+      .then((res) => {
+        setStatistics(res.data.data.statistics);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError('Unable to loading statistics. Please try again later.');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, []);
+
+  if (loading) {
+    return (
+      <AdminLayout>
+        <p className="text-slate-300">Loading...</p>
+      </AdminLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <AdminLayout>
+        <p className="text-red-400">{error}</p>
+      </AdminLayout>
+    );
+  }
+
   const stats = [
-    {
-      title: "Users",
-      value: 1200,
-      icon: Users,
-      color: "bg-blue-500",
-      route: "/users" // المسار عند الضغط
-    },
-    {
-      title: "Companies",
-      value: 85,
-      icon: Building,
-      color: "bg-purple-500",
-      route: "/companies"
-    },
-    {
-      title: "News",
-      value: 340,
-      icon: Newspaper,
-      color: "bg-orange-500",
-      route: "/news"
-    },
-    {
-      title: "Reports",
-      value: 12,
-      icon: AlertTriangle,
-      color: "bg-red-500",
-      route: "/reports"
-    },
-    {
-      title: "Packages",
-      value: 6,
-      icon: Package,
-      color: "bg-green-500",
-      route: "/packages"
-    },
-    {
-      title: "Pending News",
-      value: "4%",
-      icon: Newspaper,
-      color: "bg-cyan-500",
-      
-    }
+    { title: "Users", value: statistics.users, icon: Users, color: "bg-blue-500", route: "/users" },
+    { title: "Companies", value: statistics.companies, icon: Building, color: "bg-purple-500", route: "/companies" },
+    { title: "News", value: statistics.posts, icon: Newspaper, color: "bg-orange-500", route: "/news" },
+    { title: "Reports", value: statistics.reports, icon: AlertTriangle, color: "bg-red-500", route: "/Reported" },
+    { title: "Packages", value: statistics.packages, icon: Package, color: "bg-green-500", route: "/packages" },
   ];
 
   return (
@@ -90,12 +89,12 @@ const AdminDashboard = () => {
           return (
             <div
               key={index}
-              
-              onClick={()=> {
-                if(item.title === "Pending News") // لا ينقل عند الضغط على هذا الكرت
-                  navigate("/pending-news");
-              }}
-              
+
+              // onClick={() => {
+              //   if (item.title === "Pending News") // لا ينقل عند الضغط على هذا الكرت
+              //     navigate("/pending-news");
+              // }}
+
               // عند الضغط يروح لصفحة معينة
               onClick={() => navigate(item.route)}
 

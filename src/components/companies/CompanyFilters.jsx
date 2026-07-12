@@ -11,18 +11,8 @@ const CompanyFilters = ({
   setSearch,
   selectedSector,
   setSelectedSector,
+  categories,
 }) => {
-
-  /*
-    القطاعات
-  */
-
-  const sectors = [
-    'All',
-    'Technology',
-    'AI',
-    'Software',
-  ];
 
   return (
 
@@ -103,16 +93,18 @@ const CompanyFilters = ({
           "
         >
 
-          {sectors.map((sector, index) => (
+          <option value="All" className="bg-[#112D4E]">
+            Category
+          </option>
+
+          {categories.map((category) => (
 
             <option
-              key={index}
-              value={sector}
+              key={category.id}
+              value={category.id}
               className="bg-[#112D4E]"
             >
-              {sector === 'All'
-                ? 'Sectors'
-                : sector}
+              {category.name}
             </option>
 
           ))}

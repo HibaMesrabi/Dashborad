@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import AdminLayout from '../../layouts/AdminLayout';
 
 import NewsStats from '../../components/news/NewsStats';
 import NewsFilters from '../../components/news/NewsFilters';
 import NewsTable from '../../components/news/NewsTable';
-
+import api from '../../api/axios';
 /*
   الصفحة الرئيسية لإدارة الأخبار
 */
@@ -16,64 +16,12 @@ const News = () => {
     بيانات تجريبية مؤقتة
   */
 
-  const [news, setNews] = useState([
-
-    {
-      id: 1,
-      title: 'AI Conference 2026',
-      company: 'Syrian AI Solutions',
-      sector: 'AI',
-      status: 'Published',
-      views: 1250,
-      publishDate: '2026-06-01',
-      expireDate: '2026-06-30',
-    },
-
-    {
-      id: 2,
-      title: 'Machine Learning Workshop',
-      company: 'Future Tech Labs',
-      sector: 'Technology',
-      status: 'Featured',
-      views: 980,
-      publishDate: '2026-05-25',
-      expireDate: '2026-06-20',
-    },
-
-    {
-      id: 3,
-      title: 'Programming Bootcamp',
-      company: 'Code Vision',
-      sector: 'Programming',
-      status: 'Reported',
-      views: 500,
-      publishDate: '2026-04-15',
-      expireDate: '2026-05-15',
-    },
-
-    {
-      id: 4,
-      title: 'Cyber Security Summit',
-      company: 'Digital Shield',
-      sector: 'Cyber Security',
-      status: 'Published',
-      views: 2200,
-      publishDate: '2026-06-18',
-      expireDate: '2026-07-01',
-    },
-
-    {
-      id: 5,
-      title: 'Deep Learning Meetup',
-      company: 'Neural Systems',
-      sector: 'AI',
-      status: 'Expired',
-      views: 1800,
-      publishDate: '2026-03-01',
-      expireDate: '2026-03-20',
-    },
-
-  ]);
+  const [news, setNews] = useState([]);
+  const [cards, setCards] = useState({ total_news: 0, published: 0, under_review: 0, archived: 0, rejected: 0 });
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
 
   /*
     البحث
@@ -85,132 +33,114 @@ const News = () => {
     الفلاتر
   */
 
-  const [selectedStatus, setSelectedStatus] =
-    useState('All');
-
-  const [selectedSector, setSelectedSector] =
-    useState('All');
-
-  const [selectedDate, setSelectedDate] =
-    useState('All');
+  const [selectedStatus, setSelectedStatus] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedDate, setSelectedDate] = useState('All');
+  /*
+    جلب الفئات
+  */
+  useEffect(() => {
+    api.get('/admin/categories?type=post')
+      .then((res) => setCategories(res.data.data))
+      .catch((err) => console.error(err));
+  }, []);
 
   /*
     فلترة الأخبار
   */
 
-  const filteredNews = news.filter((item) => {
+  const fetchNews = () => {
+    setLoading(true);
 
-    const matchesSearch =
+    const params = new URLSearchParams();
+    params.append('page', currentPage);
+    if (search) params.append('search', search);
+    if (selectedStatus !== 'All') params.append('status', selectedStatus);
+    if (selectedCategory !== 'All') params.append('category_id', selectedCategory);
+    if (selectedDate !== 'All') params.append('date_filter', selectedDate);
 
-      item.title.toLowerCase().includes(search.toLowerCase())
+    api.get(`/admin/posts?${params.toString()}`)
+      .then((res) => {
+        const mappedNews = res.data.news.data.map(post => ({
+          id: post.id,
+          title: post.title,
+          company: post.account.name,
+          sector: post.category.name,
+          status: post.status,
+          views: post.views_count,
+          publishDate: post.created_at.split('T')[0],
+          expireDate: post.end_date ? post.end_date.split('T')[0] : '-',
+        }));
+        setNews(mappedNews);
+        setCards(res.data.cards);
+        setLastPage(res.data.news.last_page);
+      })
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  };
 
-      ||
-
-      item.company.toLowerCase().includes(search.toLowerCase());
-
-    const matchesStatus =
-
-      selectedStatus === 'All'
-        ? true
-        : item.status === selectedStatus;
-
-    const matchesSector =
-
-      selectedSector === 'All'
-        ? true
-        : item.sector === selectedSector;
-
-    let matchesDate = true;
-
-    const today = new Date();
-
-    const publishDate =
-      new Date(item.publishDate);
-
-    const differenceInDays =
-      (today - publishDate) /
-      (1000 * 60 * 60 * 24);
-
-    if (selectedDate === '7') {
-
-      matchesDate =
-        differenceInDays <= 7;
-
-    }
-
-    if (selectedDate === '30') {
-
-      matchesDate =
-        differenceInDays <= 30;
-
-    }
-
-    if (selectedDate === '90') {
-
-      matchesDate =
-        differenceInDays <= 90;
-
-    }
-
-    return (
-
-      matchesSearch
-
-      &&
-
-      matchesStatus
-
-      &&
-
-      matchesSector
-
-      &&
-
-      matchesDate
-
-    );
-
-  });
+  useEffect(() => {
+    fetchNews();
+  }, [currentPage, search, selectedStatus, selectedCategory, selectedDate]);
 
   return (
-
     <AdminLayout>
 
       <div className="mb-8">
-
         <h1 className="text-3xl font-bold text-white mb-2">
           News Management
         </h1>
-
       </div>
 
-      <NewsStats news={news} />
+      <NewsStats cards={cards} />
 
       <NewsFilters
-
         search={search}
-        setSearch={setSearch}
-
+        setSearch={(value) => { setSearch(value); setCurrentPage(1); }}
         selectedStatus={selectedStatus}
-        setSelectedStatus={setSelectedStatus}
-
-        selectedSector={selectedSector}
-        setSelectedSector={setSelectedSector}
-
+        setSelectedStatus={(value) => { setSelectedStatus(value); setCurrentPage(1); }}
+        selectedSector={selectedCategory}
+        setSelectedSector={(value) => { setSelectedCategory(value); setCurrentPage(1); }}
         selectedDate={selectedDate}
-        setSelectedDate={setSelectedDate}
-
+        setSelectedDate={(value) => { setSelectedDate(value); setCurrentPage(1); }}
+        categories={categories}
       />
 
-      <NewsTable
+      {loading ? (
+        <p className="text-slate-300 text-center p-6">Loading...</p>
+      ) : (
+        <>
+          <NewsTable
+            news={news}
+            setNews={setNews}
+            onActionSuccess={fetchNews}
+          />
 
-        news={filteredNews}
-        setNews={setNews}
+          <div className="flex justify-center items-center gap-4 mt-6">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-4 py-2 rounded-lg bg-[#112D4E] text-white disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
 
-      />
+            <span className="text-slate-300 text-sm">
+              Page {currentPage} of {lastPage}
+            </span>
+
+            <button
+              onClick={() => setCurrentPage(p => Math.min(p + 1, lastPage))}
+              disabled={currentPage === lastPage}
+              className="px-4 py-2 rounded-lg bg-[#112D4E] text-white disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
+        </>
+      )}
 
     </AdminLayout>
-
   );
 
 };

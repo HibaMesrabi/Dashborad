@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import AdminLayout from '../../layouts/AdminLayout';
 
@@ -6,6 +6,7 @@ import CompanyStats from '../../components/companies/CompanyStats';
 import CompanyFilters from '../../components/companies/CompanyFilters';
 import CompanyTable from '../../components/companies/CompanyTable';
 
+import api from '../../api/axios';
 /*
   Companies Page
 */
@@ -18,73 +19,12 @@ const Companies = () => {
     حالياً Frontend فقط
   */
 
-  const [companies, setCompanies] = useState([
-
-    {
-      id: 1,
-      name: 'Neural Code',
-      sector: 'AI',
-      wallet: 4200,
-      blocked: false,
-    },
-
-    {
-      id: 2,
-      name: 'VisionX',
-      sector: 'Software',
-      wallet: 3100,
-      blocked: false,
-    },
-
-    {
-      id: 3,
-      name: 'DeepMind Syria',
-      sector: 'AI',
-      wallet: 5200,
-      blocked: true,
-    },
-
-    {
-      id: 4,
-      name: 'CodeCraft',
-      sector: 'Technology',
-      wallet: 1800,
-      blocked: false,
-    },
-
-    {
-      id: 5,
-      name: 'Smart Stack',
-      sector: 'Software',
-      wallet: 2600,
-      blocked: false,
-    },
-
-    {
-      id: 6,
-      name: 'Future AI',
-      sector: 'AI',
-      wallet: 4700,
-      blocked: false,
-    },
-
-    {
-      id: 7,
-      name: 'Quantum Tech',
-      sector: 'Technology',
-      wallet: 6200,
-      blocked: true,
-    },
-
-    {
-      id: 8,
-      name: 'Nexa Systems',
-      sector: 'Software',
-      wallet: 2900,
-      blocked: false,
-    },
-
-  ]);
+  const [companies, setCompanies] = useState([]);
+  const [stats, setStats] = useState({ total_companies: 0, blocked_companies: 0, total_balance: 0 });
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [lastPage, setLastPage] = useState(1);
 
   /*
     Search State
@@ -96,25 +36,44 @@ const Companies = () => {
     Selected Sector
   */
 
-  const [selectedSector, setSelectedSector] = useState('All');
+  const [selectedCategory, setSelectedCategory] = useState('All');
+
+  // جلب الفئات مرة وحدة عند فتح الصفحة
+  useEffect(() => {
+    api.get('/admin/categories')
+      .then((res) => setCategories(res.data.data))
+      .catch((err) => console.error(err));
+  }, []);
 
   /*
     فلترة الشركات
   */
 
-  const filteredCompanies = companies.filter((company) => {
+  // جلب الشركات، يتجدد مع الصفحة/البحث/الفئة
+  const fetchCompanies = () => {
+    setLoading(true);
+    const categoryParam = selectedCategory === 'All' ? '' : `&category_id=${selectedCategory}`;
 
-    const matchesSearch =
-      company.name.toLowerCase().includes(search.toLowerCase());
+    api.get(`/admin/companies?page=${currentPage}&search=${search}${categoryParam}`)
+      .then((res) => {
+        const mappedCompanies = res.data.data.companies.data.map(company => ({
+          id: company.id,
+          name: company.name,
+          sector: company.category,
+          wallet: company.wallet_balance,
+          blocked: company.status === "Blocked",
+        }));
+        setCompanies(mappedCompanies);
+        setStats(res.data.data.stats);
+        setLastPage(res.data.data.companies.meta.last_page);
+      })
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  };
 
-    const matchesSector =
-      selectedSector === 'All'
-        ? true
-        : company.sector === selectedSector;
-
-    return matchesSearch && matchesSector;
-
-  });
+  useEffect(() => {
+    fetchCompanies();
+  }, [currentPage, search, selectedCategory]);
 
   return (
 
@@ -128,29 +87,56 @@ const Companies = () => {
           Companies Management
         </h1>
 
-       
-
       </div>
 
       {/* الإحصائيات */}
 
-      <CompanyStats companies={companies} />
+      <CompanyStats stats={stats} />
 
       {/* الفلاتر */}
 
       <CompanyFilters
         search={search}
-        setSearch={setSearch}
-        selectedSector={selectedSector}
-        setSelectedSector={setSelectedSector}
+        setSearch={(value) => { setSearch(value); setCurrentPage(1); }}
+        selectedSector={selectedCategory}
+        setSelectedSector={(value) => { setSelectedCategory(value); setCurrentPage(1); }}
+        categories={categories}
       />
 
-      {/* الجدول */}
+      {loading ? (
+        <p className="text-slate-300 text-center p-6">Loading...</p>
+      ) : (
+        <>
+          {/* الجدول */}
+          <CompanyTable
+            companies={companies}
+            setCompanies={setCompanies}
+            onActionSuccess={fetchCompanies}
+          />
 
-      <CompanyTable
-        companies={filteredCompanies}
-        setCompanies={setCompanies}
-      />
+          <div className="flex justify-center items-center gap-4 mt-6">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
+              disabled={currentPage === 1}
+              className="px-4 py-2 rounded-lg bg-[#112D4E] text-white disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Previous
+            </button>
+
+            <span className="text-slate-300 text-sm">
+              Page {currentPage} of {lastPage}
+            </span>
+
+            <button
+              onClick={() => setCurrentPage(p => Math.min(p + 1, lastPage))}
+              disabled={currentPage === lastPage}
+              className="px-4 py-2 rounded-lg bg-[#112D4E] text-white disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Next
+            </button>
+          </div>
+        </>
+      )}
 
     </AdminLayout>
   );

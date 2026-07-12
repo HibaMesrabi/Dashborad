@@ -1,153 +1,108 @@
 import React from 'react';
 
-import {
-  FileWarning,
-  Clock,
-  EyeOff,
-  ShieldAlert,
-  Ban
-} from 'lucide-react';
-
 /*
-  كروت إحصائيات المحتوى المخالف
-
-  تعرض:
-
-  - إجمالي البلاغات
-  - البلاغات المعلقة
-  - المحتوى المخفي
-  - المستخدمين المقيدين
-  - المستخدمين المحظورين
+  كروت الإحصائيات
+  تعتمد على جدول reports
 */
 
 const ReportedStats = ({ reports }) => {
 
-  /*
-    إجمالي البلاغات
-  */
-
+  // العدد الكلي للبلاغات
   const totalReports = reports.length;
 
-  /*
-    البلاغات المعلقة
-  */
+  // عدد البلاغات على المنشورات
+  const reportedPosts =
+    reports.filter(
+      report => report.reportable_type === "post"
+    ).length;
 
-  const pendingReports = reports.filter(
-    item => item.status === 'Pending'
-  ).length;
+  // عدد البلاغات على الحسابات
+  const reportedAccounts =
+    reports.filter(
+      report => report.reportable_type === "account"
+    ).length;
 
-  /*
-    أرقام تجريبية مؤقتة
-
-    لاحقاً ستأتي من الـ API
-  */
-
-  const hiddenContent = 8;
-
-  const restrictedUsers = 3;
-
-  const blockedUsers = 2;
-
-  /*
-    بيانات الكروت
-  */
-
-  const stats = [
-
-    {
-      title: 'Total Reports',
-      value: totalReports,
-      icon: <FileWarning size={24} />
-    },
-
-    {
-      title: 'Pending Reports',
-      value: pendingReports,
-      icon: <Clock size={24} />
-    },
-
-    {
-      title: 'Hidden Content',
-      value: hiddenContent,
-      icon: <EyeOff size={24} />
-    },
-
-    {
-      title: 'Restricted Users',
-      value: restrictedUsers,
-      icon: <ShieldAlert size={24} />
-    },
-
-    {
-      title: 'Blocked Users',
-      value: blockedUsers,
-      icon: <Ban size={24} />
-    }
-
-  ];
+  // البلاغات المعلقة
+  const pendingReports =
+    reports.filter(
+      report => report.status === "pending"
+    ).length;
 
   return (
 
-    <div
-      className="
-        grid
-        grid-cols-1
-        md:grid-cols-2
-        xl:grid-cols-5
-        gap-6
-        mb-8
-      "
-    >
+    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
 
-      {stats.map((item, index) => (
+      {/* جميع البلاغات */}
 
-        <div
-          key={index}
-          className="
-            bg-[#112D4E]
-            p-6
-            rounded-3xl
-            border
-            border-white/10
-            shadow-xl
-            hover:border-orange-400/30
-            transition-all
-          "
-        >
+      <div className="bg-[#1e3a5f] rounded-2xl p-6 shadow-lg">
 
-          <div
-            className="
-              w-14 h-14
-              rounded-xl
-              flex
-              items-center
-              justify-center
-              bg-[#071A33]
-              text-orange-400
-              mb-4
-            "
-          >
-            {item.icon}
-          </div>
+        <p className="text-slate-300 text-sm mb-2">
 
-          <p className="text-slate-400 text-sm">
-            {item.title}
-          </p>
+          Total Reports
 
-          <h2
-            className="
-              text-4xl
-              font-bold
-              text-white
-              mt-2
-            "
-          >
-            {item.value}
-          </h2>
+        </p>
 
-        </div>
+        <h2 className="text-3xl font-bold text-white">
 
-      ))}
+          {totalReports}
+
+        </h2>
+
+      </div>
+
+      {/* بلاغات المنشورات */}
+
+      <div className="bg-[#1e3a5f] rounded-2xl p-6 shadow-lg">
+
+        <p className="text-slate-300 text-sm mb-2">
+
+          Reported Posts
+
+        </p>
+
+        <h2 className="text-3xl font-bold text-blue-400">
+
+          {reportedPosts}
+
+        </h2>
+
+      </div>
+
+      {/* بلاغات الحسابات */}
+
+      <div className="bg-[#1e3a5f] rounded-2xl p-6 shadow-lg">
+
+        <p className="text-slate-300 text-sm mb-2">
+
+          Reported Accounts
+
+        </p>
+
+        <h2 className="text-3xl font-bold text-purple-400">
+
+          {reportedAccounts}
+
+        </h2>
+
+      </div>
+
+      {/* البلاغات المعلقة */}
+
+      <div className="bg-[#1e3a5f] rounded-2xl p-6 shadow-lg">
+
+        <p className="text-slate-300 text-sm mb-2">
+
+          Pending Reports
+
+        </p>
+
+        <h2 className="text-3xl font-bold text-yellow-400">
+
+          {pendingReports}
+
+        </h2>
+
+      </div>
 
     </div>
 

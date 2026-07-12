@@ -1,512 +1,396 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 import {
-  EyeOff,
-  Eye,
-  Trash2,
-  Ban,
-  ShieldAlert
+
+  CheckCircle2,
+
+  XCircle
+
 } from 'lucide-react';
 
-import HideContentModal from './modals/HideContentModal';
-import DeleteContentModal from './modals/DeleteContentModal';
-import BlockUserModal from './modals/BlockUserModal';
-import RestrictUserModal from './modals/RestrictUserModal';
-
 /*
-  جدول إدارة المحتوى المبلغ عنه
+  جدول المحتوى المبلغ عنه
 */
 
 const ReportedTable = ({
+
   reports,
+
   setReports
+
 }) => {
 
   /*
-    العنصر المحدد
+    تغيير حالة البلاغ
   */
 
-  const [selectedReport, setSelectedReport] =
-    useState(null);
+  const updateStatus = (id, newStatus) => {
 
-  /*
-    المودالات
-  */
+    const updated = reports.map((report) =>
 
-  const [showHideModal, setShowHideModal] =
-    useState(false);
+      report.id === id
 
-  const [showDeleteModal, setShowDeleteModal] =
-    useState(false);
+        ? {
 
-  const [showBlockModal, setShowBlockModal] =
-    useState(false);
+            ...report,
 
-  const [showRestrictModal, setShowRestrictModal] =
-    useState(false);
+            status: newStatus
 
-  /*
-    ألوان الحالات
-  */
+          }
 
-  const getStatusStyle = (status) => {
+        : report
 
-    switch (status) {
+    );
 
-      case 'Pending':
-        return 'bg-yellow-500/20 text-yellow-400';
+    setReports(updated);
 
-      case 'Dismissed':
-        return 'bg-blue-500/20 text-blue-400';
+  };
 
-      case 'Resolved':
-        return 'bg-green-500/20 text-green-400';
+  const confirmStatusChange = (id, newStatus, message) => {
 
-      default:
-        return 'bg-slate-500/20 text-slate-400';
+    if (window.confirm(message)) {
+
+      updateStatus(id, newStatus);
 
     }
 
   };
 
-  /*
-    إخفاء / إظهار المحتوى
-  */
-
-  const toggleHidden = (id) => {
-
-    setReports((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              isHidden: !item.isHidden
-            }
-          : item
-      )
-    );
-
-  };
-
-  /*
-    حظر / فك الحظر
-  */
-
-  const toggleBlocked = (id) => {
-
-    setReports((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              isBlocked: !item.isBlocked
-            }
-          : item
-      )
-    );
-
-  };
-
-  /*
-    تقييد / إزالة التقييد
-  */
-
-  const toggleRestricted = (id) => {
-
-    setReports((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              isRestricted:
-                !item.isRestricted
-            }
-          : item
-      )
-    );
-
-  };
-
-  /*
-    حذف المحتوى
-  */
-
-  const deleteContent = (id) => {
-
-    setReports((prev) =>
-      prev.filter(
-        (item) => item.id !== id
-      )
-    );
-
-  };
-
   return (
 
-    <>
+    <div
 
-      <div
-        className="
-          bg-[#112D4E]
-          rounded-3xl
-          border border-white/10
-          overflow-hidden
-        "
-      >
+      className="
+        bg-[#17365D]
+        rounded-3xl
+        overflow-hidden
+        shadow-2xl
+        border
+        border-[#21446D]
+      "
 
-        <div className="p-5 border-b border-white/10">
+    >
 
-          <h2 className="text-xl font-bold text-white">
-            Reported Content
-          </h2>
+      {/* تغليف الجدول ليدعم الشاشات الصغيرة */}
 
-        </div>
+      <div className="overflow-x-auto">
 
-        <div className="overflow-x-auto">
+        <table className="w-full">
 
-          <table className="w-full">
+          {/* رأس الجدول */}
 
-            <thead>
+          <thead>
 
-              <tr className="bg-[#071A33] text-slate-300">
+            <tr
 
-                <th className="px-4 py-4 text-left">
-                  Content
-                </th>
+              className="
+                bg-[#0B1F3A]
+                text-white
+                text-[16px]
+                font-semibold
+              "
 
-                <th className="px-4 py-4 text-left">
-                  Reported By
-                </th>
+            >
 
-                <th className="px-4 py-4 text-left">
-                  Type
-                </th>
+              {/* رقم البلاغ */}
 
-                <th className="px-4 py-4 text-left">
-                  Reason
-                </th>
+              <th className="px-5 py-6 text-left">
 
-                <th className="px-4 py-4 text-left">
-                  Status
-                </th>
+                ID
 
-                <th className="px-4 py-4 text-left">
-                  Date
-                </th>
+              </th>
 
-                <th className="px-4 py-4 text-left">
-                  Moderation
-                </th>
+              {/* الشخص الذي قام بالإبلاغ */}
 
-                <th className="px-4 py-4 text-center">
-                  Actions
-                </th>
+              <th className="px-5 py-6 text-left">
 
-              </tr>
+                Reporter
 
-            </thead>
+              </th>
 
-            <tbody>
+              {/* العنصر المبلغ عنه */}
 
-              {reports.map((item) => (
+              <th className="px-5 py-6 text-left">
+
+                Reported Item
+
+              </th>
+
+              {/* نوع العنصر */}
+
+              <th className="px-5 py-6 text-left">
+
+                Type
+
+              </th>
+
+              {/* سبب البلاغ */}
+
+              <th className="px-5 py-6 text-left">
+
+                Reason
+
+              </th>
+
+              {/* حالة البلاغ */}
+
+              <th className="px-5 py-6 text-left">
+
+                Status
+
+              </th>
+
+              {/* تاريخ البلاغ */}
+
+              <th className="px-5 py-6 text-left">
+
+                Created At
+
+              </th>
+
+              {/* الإجراءات */}
+
+              <th className="px-5 py-6 text-center">
+
+                Actions
+
+              </th>
+
+            </tr>
+
+          </thead>
+
+          {/* جسم الجدول */}
+
+          <tbody>
+
+            {
+
+              reports.map((report) => (
 
                 <tr
-                  key={item.id}
+
+                  key={report.id}
+
                   className="
-                    border-t
-                    border-white/5
-                    hover:bg-white/5
+                    border-b
+                    border-[#21446D]
+                    hover:bg-[#21446D]
+                    transition-all
+                    duration-200
                   "
+
                 >
 
-                  <td className="px-4 py-4 text-white">
-                    {item.content}
+                  {/* رقم البلاغ */}
+
+                  <td className="px-5 py-5 text-white text-[16px]">
+
+                    {report.id}
+
                   </td>
 
-                  <td className="px-4 py-4 text-slate-300">
-                    {item.reportedBy}
+                  {/* الشخص الذي أرسل البلاغ */}
+
+                  <td className="px-5 py-5 text-white text-[16px]">
+
+                    {report.reporter_name}
+
                   </td>
 
-                  <td className="px-4 py-4 text-orange-400">
-                    {item.type}
+                  {/* المنشور أو الحساب المبلغ عنه */}
+
+                  <td className="px-5 py-5 text-white text-[16px]">
+
+                    {report.reported_item}
+
                   </td>
 
-                  <td className="px-4 py-4 text-slate-300">
-                    {item.reason}
+                  {/* نوع العنصر */}
+
+                  <td className="px-5 py-5 text-white text-[16px] capitalize">
+
+                    {report.reportable_type}
+
                   </td>
 
-                  <td className="px-4 py-4">
+                  {/* سبب البلاغ */}
+
+                  <td className="px-5 py-5 text-white text-[16px]">
+
+                    {report.reason}
+
+                  </td>
+
+                  {/* حالة البلاغ */}
+
+                  <td className="px-5 py-5">
 
                     <span
+
                       className={`
-                        px-3 py-1 rounded-full
-                        text-xs font-medium
-                        ${getStatusStyle(item.status)}
+                        px-4
+                        py-1.5
+                        rounded-full
+                        text-sm
+                        font-semibold
+
+                        ${
+                          report.status === "pending"
+
+                            ? "bg-yellow-500/20 text-yellow-400"
+
+                            : ""
+                        }
+
+                        ${
+                          report.status === "resolved"
+
+                            ? "bg-green-500/20 text-green-400"
+
+                            : ""
+                        }
+
+                        ${
+                          report.status === "dismissed"
+
+                            ? "bg-red-500/20 text-red-400"
+
+                            : ""
+                        }
+
                       `}
+
                     >
-                      {item.status}
+
+                      {report.status}
+
                     </span>
 
                   </td>
 
-                  <td className="px-4 py-4 text-slate-300">   
-                    {item.date}
-                  </td>
+                  {/* تاريخ البلاغ */}
 
-                  {/* حالة الإدارة */}
+                  <td className="px-5 py-5 text-white text-[16px]">
 
-                  <td className="px-4 py-4">
-
-                    <div className="flex flex-col gap-1">
-
-                      {item.isHidden && (       
-
-                        <span className="text-yellow-400 text-xs">
-                          Hidden
-                        </span>
-
-                      )}
-
-                      {item.isBlocked && (
-
-                        <span className="text-red-400 text-xs">
-                          Blocked
-                        </span>
-
-                      )}
-
-                      {item.isRestricted && (
-
-                        <span className="text-blue-400 text-xs">
-                          Restricted
-                        </span>
-
-                      )}
-
-                    </div>
+                    {report.created_at || "-"}
 
                   </td>
+                                    {/* الإجراءات */}
 
-                  <td className="px-4 py-4">
+                  <td className="px-5 py-5">
 
-                    <div className="flex justify-center gap-2">
+                    {
 
-                      {/* Hide / Unhide */}
+                      report.status === "pending"
 
-                      <button
-                        onClick={() => {
+                      ? (
 
-                          if (item.isHidden) {
+                        <div className="flex justify-center gap-3">
 
-                            toggleHidden(item.id);
+                          {/* زر قبول البلاغ */}
 
-                          } else {
+                          <button
 
-                            setSelectedReport(item);
+                            onClick={() =>
+                              confirmStatusChange(
+                                report.id,
+                                "resolved",
+                                "Are you sure you want to accept this report?"
+                              )
+                            }
 
-                            setShowHideModal(true);
+                            className="
+                              w-10
+                              h-10
+                              rounded-xl
+                              bg-[#23539A]
+                              flex
+                              items-center
+                              justify-center
+                              text-green-400
+                              hover:bg-[#2D67BC]
+                              transition-all
+                              duration-200
+                            "
 
-                          }
+                            title="Resolve"
 
-                        }}
-                        className="
-                          p-2 rounded-lg
-                          bg-yellow-500/20
-                          text-yellow-400
-                        "
-                      >
+                          >
 
-                        {item.isHidden
-                          ? <Eye size={18} />
-                          : <EyeOff size={18} />
-                        }
+                            <CheckCircle2 size={18} />
 
-                      </button>
+                          </button>
 
-                      {/* Delete */}
+                          {/* زر رفض البلاغ */}
 
-                      <button
-                        onClick={() => {
+                          <button
 
-                          setSelectedReport(item);
+                            onClick={() =>
+                              confirmStatusChange(
+                                report.id,
+                                "dismissed",
+                                "Are you sure you want to reject this report?"
+                              )
+                            }
 
-                          setShowDeleteModal(true);
+                            className="
+                              w-10
+                              h-10
+                              rounded-xl
+                              bg-[#5A3D58]
+                              flex
+                              items-center
+                              justify-center
+                              text-red-400
+                              hover:bg-[#704A6D]
+                              transition-all
+                              duration-200
+                            "
 
-                        }}
-                        className="
-                          p-2 rounded-lg
-                          bg-red-500/20
-                          text-red-400
-                        "
-                      >
-                        <Trash2 size={18} />
-                      </button>
+                            title="Dismiss"
 
-                      {/* Block */}
+                          >
 
-                      <button
-                        onClick={() => {
+                            <XCircle size={18} />
 
-                          if (item.isBlocked) {
+                          </button>
 
-                            toggleBlocked(item.id);
+                        </div>
 
-                          } else {
+                      )
 
-                            setSelectedReport(item);
+                      : (
 
-                            setShowBlockModal(true);
+                        <div className="flex justify-center">
 
-                          }
+                          <span className="text-slate-500 text-lg">
 
-                        }}
-                        className="
-                          p-2 rounded-lg
-                          bg-orange-500/20
-                          text-orange-400
-                        "
-                      >
-                        <Ban size={18} />
-                      </button>
+                            —
 
-                      {/* Restrict */}
+                          </span>
 
-                      <button
-                        onClick={() => {
+                        </div>
 
-                          if (
-                            item.isRestricted
-                          ) {
+                      )
 
-                            toggleRestricted(
-                              item.id
-                            );
-
-                          } else {
-
-                            setSelectedReport(item);
-
-                            setShowRestrictModal(
-                              true
-                            );
-
-                          }
-
-                        }}
-                        className="
-                          p-2 rounded-lg
-                          bg-blue-500/20
-                          text-blue-400
-                        "
-                      >
-                        <ShieldAlert size={18} />
-                      </button>
-
-                    </div>
+                    }
 
                   </td>
 
                 </tr>
 
-              ))}
+              ))
 
-            </tbody>
+            }
 
-          </table>
+          </tbody>
 
-        </div>
+        </table>
 
       </div>
 
-      {showHideModal && (
-
-        <HideContentModal
-
-          onClose={() =>
-            setShowHideModal(false)
-          }
-
-          onConfirm={() => {
-
-            toggleHidden(
-              selectedReport.id
-            );
-
-            setShowHideModal(false);
-
-          }}
-
-        />
-
-      )}
-
-      {showDeleteModal && (
-
-        <DeleteContentModal
-
-          onClose={() =>
-            setShowDeleteModal(false)
-          }
-
-          onConfirm={() => {
-
-            deleteContent(
-              selectedReport.id
-            );
-
-            setShowDeleteModal(false);
- 
-          }}
-
-        />
-
-      )}
-
-      {showBlockModal && (
-
-        <BlockUserModal
-
-          onClose={() =>
-            setShowBlockModal(false)
-          }
-
-          onConfirm={() => {
-
-            toggleBlocked(
-              selectedReport.id
-            );
-
-            setShowBlockModal(false);
-
-          }}
-
-        />
-
-      )}
-
-      {showRestrictModal && (
-
-        <RestrictUserModal
-
-          onClose={() =>
-            setShowRestrictModal(false)
-          }
-
-          onConfirm={() => {
-
-            toggleRestricted(
-              selectedReport.id
-            );
-
-            setShowRestrictModal(false);
-
-          }}
-
-        />
-
-      )}
-
-    </>
+    </div>
 
   );
 

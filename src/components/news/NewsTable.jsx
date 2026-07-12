@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import api from '../../api/axios';
 
 import {
   Archive,
@@ -16,7 +17,7 @@ import {
   - حذف
 */
 
-const NewsTable = ({ news, setNews }) => {
+const NewsTable = ({ news, setNews, onActionSuccess }) => {
 
   // الخبر المحدد
   const [selectedNews, setSelectedNews] =
@@ -35,36 +36,16 @@ const NewsTable = ({ news, setNews }) => {
   */
 
   const handleArchiveToggle = () => {
-
-    setNews((prevNews) =>
-
-      prevNews.map((item) =>
-
-        item.id === selectedNews.id
-
-          ? {
-
-              ...item,
-
-              status:
-
-                item.status === 'Archived'
-
-                  ? 'Published'
-
-                  : 'Archived'
-
-            }
-
-          : item
-
-      )
-
-    );
-
-    setShowArchiveModal(false);
-
-    setSelectedNews(null);
+    api.post(`/admin/posts/${selectedNews.id}/toggle-archive`)
+      .then(() => {
+        onActionSuccess();
+        setShowArchiveModal(false);
+        setSelectedNews(null);
+      })
+      .catch((err) => {
+        console.error(err);
+        alert(err.response?.data?.message || 'An error occurred while toggling archive status.');
+      });
   };
 
   /*
@@ -72,21 +53,16 @@ const NewsTable = ({ news, setNews }) => {
   */
 
   const handleDelete = () => {
-
-    setNews((prevNews) =>
-
-      prevNews.filter(
-
-        item =>
-          item.id !== selectedNews.id
-
-      )
-
-    );
-
-    setShowDeleteModal(false);
-
-    setSelectedNews(null);
+    api.delete(`/admin/posts/${selectedNews.id}`)
+      .then(() => {
+        onActionSuccess();
+        setShowDeleteModal(false);
+        setSelectedNews(null);
+      })
+      .catch((err) => {
+        console.error(err);
+        alert(err.response?.data?.message || 'An error occurred while deleting.');
+      });
   };
 
   /*
@@ -94,26 +70,13 @@ const NewsTable = ({ news, setNews }) => {
   */
 
   const getStatusStyle = (status) => {
-
     switch (status) {
-
-      case 'Published':
-        return 'bg-green-500/20 text-green-400';
-
-      case 'Featured':
-        return 'bg-yellow-500/20 text-yellow-400';
-
-      case 'Reported':
-        return 'bg-red-500/20 text-red-400';
-
-      case 'Expired':
-        return 'bg-slate-500/20 text-slate-300';
-
-      case 'Archived':
-        return 'bg-blue-500/20 text-blue-400';
-
-      default:
-        return 'bg-slate-500/20 text-slate-300';
+      case 'published': return 'bg-green-500/20 text-green-400';
+      case 'under_review': return 'bg-yellow-500/20 text-yellow-400';
+      case 'rejected': return 'bg-red-500/20 text-red-400';
+      case 'draft': return 'bg-slate-500/20 text-slate-300';
+      case 'archived': return 'bg-blue-500/20 text-blue-400';
+      default: return 'bg-slate-500/20 text-slate-300';
     }
   };
 
@@ -298,7 +261,7 @@ const NewsTable = ({ news, setNews }) => {
                         "
                       >
 
-                        {item.status === 'Archived'
+                        {item.status === 'archived'
 
                           ? <RotateCcw size={18} />
 
@@ -394,7 +357,7 @@ const NewsTable = ({ news, setNews }) => {
                 mb-3
               "
             >
-              {selectedNews?.status === 'Archived'
+              {selectedNews?.status === 'archived'
                 ? 'Unarchive News'
                 : 'Archive News'}
             </h3>

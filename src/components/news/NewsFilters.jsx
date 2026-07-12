@@ -17,7 +17,9 @@ const NewsFilters = ({
   setSelectedSector,
 
   selectedDate,
-  setSelectedDate
+  setSelectedDate,
+
+  categories,
 
 }) => {
 
@@ -101,11 +103,11 @@ const NewsFilters = ({
           "
         >
           <option value="All">Status</option>
-          <option value="Published">Published</option>
-          <option value="Featured">Featured</option>
-          <option value="Reported">Reported</option>
-          <option value="Expired">Expired</option>
-          <option value="Archived">Archived</option>
+          <option value="draft">Draft</option>
+          <option value="published">Published</option>
+          <option value="under_review">Under Review</option>
+          <option value="archived">Archived</option>
+          <option value="rejected">Rejected</option>
         </select>
 
         <select
@@ -123,12 +125,11 @@ const NewsFilters = ({
           "
         >
           <option value="All">Sector</option>
-          <option value="AI">AI</option>
-          <option value="Technology">Technology</option>
-          <option value="Programming">Programming</option>
-          <option value="Cyber Security">
-            Cyber Security
-          </option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}
+            </option>
+          ))}
         </select>
 
         <select
@@ -146,9 +147,9 @@ const NewsFilters = ({
           "
         >
           <option value="All">Date</option>
-          <option value="7">Last 7 Days</option>
-          <option value="30">Last 30 Days</option>
-          <option value="90">Last 90 Days</option>
+          <option value="last_7">Last 7 Days</option>
+          <option value="last_30">Last 30 Days</option>
+          <option value="last_90">Last 90 Days</option>
         </select>
 
       </div>

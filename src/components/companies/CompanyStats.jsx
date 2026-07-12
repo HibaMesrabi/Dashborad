@@ -5,21 +5,16 @@ import { Building2, Ban, Wallet } from 'lucide-react';
   كروت الإحصائيات
 */
 
-const CompanyStats = ({ companies }) => {
+const CompanyStats = ({ stats }) => {
 
   // عدد الشركات
-  const totalCompanies = companies.length;
+  const totalCompanies = stats.total_companies;
 
   // عدد المحظورين
-  const blockedCompanies = companies.filter(
-    (company) => company.blocked
-  ).length;
+  const blockedCompanies = stats.blocked_companies;
 
   // مجموع الأرصدة
-  const totalWallets = companies.reduce(
-    (total, company) => total + company.wallet,
-    0
-  );
+  const totalWallets = stats.total_balance;
 
   return (
 
@@ -32,7 +27,7 @@ const CompanyStats = ({ companies }) => {
         <Building2 className="text-orange-400 mb-4" />
 
         <h3 className="text-slate-400 mb-2">
-          الشركات
+          Companies
         </h3>
 
         <p className="text-3xl font-bold text-white">
@@ -48,7 +43,7 @@ const CompanyStats = ({ companies }) => {
         <Ban className="text-red-400 mb-4" />
 
         <h3 className="text-slate-400 mb-2">
-          المحظورون
+          Blocked
         </h3>
 
         <p className="text-3xl font-bold text-white">
@@ -64,7 +59,7 @@ const CompanyStats = ({ companies }) => {
         <Wallet className="text-green-400 mb-4" />
 
         <h3 className="text-slate-400 mb-2">
-          إجمالي المحافظ
+          Total Wallets
         </h3>
 
         <p className="text-3xl font-bold text-white">

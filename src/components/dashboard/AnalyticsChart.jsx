@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 /*
   مخطط بياني يلي بصفحة الداشبورد لعرض عدد الأخبار عبر الأشهر
@@ -6,24 +6,44 @@ import React from 'react';
 */
 
 import { // مكونات الرسم
-  LineChart, 
+  LineChart,
   Line,
   XAxis,
   YAxis,
   Tooltip,
-  ResponsiveContainer 
+  ResponsiveContainer
 } from 'recharts';
+
+import api from '../../api/axios';
 
 const AnalyticsChart = () => {
 
-  // بيانات تجريبية (لاحقاً من Backend)
-  const data = [
-    { month: 'Jan', news: 40 },
-    { month: 'Feb', news: 70 },
-    { month: 'Mar', news: 55 },
-    { month: 'Apr', news: 90 },
-    { month: 'May', news: 120 },
-  ];
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    api.get('/admin/reports-analytics')
+      .then((res) => {
+        const { months_labels, news_growth } = res.data.data.charts;
+
+        const chartData = months_labels.map((month, index) => ({
+          month: month.slice(0, 3), // اختصار الاسم متل "Jan" بدل "January"
+          news: news_growth[index],
+        }));
+
+        setData(chartData);
+      })
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="bg-[#112D4E] p-6 rounded-2xl shadow-xl mb-10">
+        <p className="text-slate-300">جارِ تحميل المخطط...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-[#112D4E] p-6 rounded-2xl shadow-xl mb-10">

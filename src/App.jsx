@@ -9,6 +9,11 @@ import News from './pages/ADMIN/News';
 import ReportedContent from './pages/ADMIN/ReportedContent';
 import Reports from './pages/ADMIN/Reports';
 import Settings from './pages/ADMIN/Settings';
+import Packages from './pages/ADMIN/Packages';
+
+import ForgotPassword from './pages/Auth/ForgotPassword';
+import ResetPassword from './pages/Auth/ResetPassword';
+
 // صفحة مؤقتة للشركة
 const CompanyDashboard = () => {
   return (
@@ -36,18 +41,24 @@ function App() {
 
       {/* إدارة المستخدمين */}
       <Route path="/users" element={<Users />} />
-     {/* أدارة الشركات */}
+      {/* أدارة الشركات */}
       <Route path="/companies" element={<Companies />} />
-
       {/* أدارة الأخبار */}
         <Route path="/news" element={<News />}/> 
       {/* المحتوى المبلغ عنه */}
       <Route path="/reported" element={<ReportedContent />}/>
+      {/* الباقات */}
+      <Route path="/packages" element={<Packages />}/>
       {/*التقارير*/}
       <Route path="/reports" element={<Reports />}/>
       {/* إعدادات المنصة */}
       <Route path="/settings" element={<Settings />}/>
-      
+
+
+      {/* Forgot Password */}
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      {/* Reset Password */}
+      <Route path="/reset-password" element={<ResetPassword />} />    
     </Routes>
   );
 }

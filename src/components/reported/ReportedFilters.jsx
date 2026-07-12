@@ -1,5 +1,12 @@
 import React from 'react';
-import { Search } from 'lucide-react';
+
+/*
+  هذا الكومبوننت مسؤول عن:
+
+  - البحث
+  - فلترة الحالة
+  - فلترة النوع
+*/
 
 const ReportedFilters = ({
 
@@ -18,126 +25,149 @@ const ReportedFilters = ({
 
     <div
       className="
-        bg-[#112D4E]
-        rounded-3xl
-        border border-white/10
+        bg-gradient-to-br
+        from-[#1A2A44]
+        to-[#0F1C2E]
+        border
+        border-[#223A5E]
+        rounded-2xl
         p-6
-        mb-8
-        shadow-xl
+        mb-6
+        shadow-lg
       "
     >
 
-      <h2
-        className="
-          text-xl
-          font-bold
-          text-white
-          mb-5
-        "
-      >
-        Search & Filters
+      {/* عنوان القسم */}
+
+      <h2 className="text-white text-lg font-semibold mb-4">
+
+        Filters
+
       </h2>
 
-      <div
-        className="
-          grid
-          grid-cols-1
-          md:grid-cols-3
-          gap-4
-        "
-      >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
-        <div className="relative">
+        {/* البحث */}
 
-          <Search
-            size={18}
-            className="
-              absolute
-              left-4
-              top-1/2
-              -translate-y-1/2
-              text-slate-400
-            "
-          />
+        <input
 
-          <input
-            type="text"
-            value={search}
-            onChange={(e) =>
-              setSearch(e.target.value)
-            }
-            placeholder="Search reports..."
-            className="
-              w-full
-              h-11
-              pl-11
-              rounded-xl
-              bg-[#071A33]
-              border border-white/10
-              text-white
-            "
-          />
+          type="text"
 
-        </div>
+          placeholder="Search by reporter, reported item or reason..."
+
+          value={search}
+
+          onChange={(e) =>
+            setSearch(e.target.value)
+          }
+
+          className="
+            w-full
+            bg-[#0B1624]
+            border
+            border-[#223A5E]
+            rounded-xl
+            px-4
+            py-2
+            text-white
+            placeholder:text-slate-500
+            focus:outline-none
+            focus:border-purple-500
+          "
+
+        />
+
+        {/* فلترة الحالة */}
 
         <select
+
           value={selectedStatus}
+
           onChange={(e) =>
             setSelectedStatus(e.target.value)
           }
+
           className="
-            h-11
-            px-4
+            w-full
+            bg-[#0B1624]
+            border
+            border-[#223A5E]
             rounded-xl
-            bg-[#071A33]
-            border border-white/10
+            px-4
+            py-2
             text-white
+            focus:outline-none
+            focus:border-purple-500
           "
+
         >
 
           <option value="All">
-            Status
+
+            All Status
+
           </option>
 
-          <option value="Pending">
+          <option value="pending">
+
             Pending
+
           </option>
 
-          <option value="Dismissed">
-            Dismissed
-          </option>
+          <option value="resolved">
 
-          <option value="Resolved">
             Resolved
+
+          </option>
+
+          <option value="dismissed">
+
+            Dismissed
+
           </option>
 
         </select>
+                {/* فلترة النوع */}
 
         <select
+
           value={selectedType}
+
           onChange={(e) =>
             setSelectedType(e.target.value)
           }
+
           className="
-            h-11
-            px-4
+            w-full
+            bg-[#0B1624]
+            border
+            border-[#223A5E]
             rounded-xl
-            bg-[#071A33]
-            border border-white/10
+            px-4
+            py-2
             text-white
+            focus:outline-none
+            focus:border-purple-500
           "
+
         >
 
           <option value="All">
-            Report Type
+
+            All Types
+
           </option>
 
-          <option value="User">
-            User
+          <option value="post">
+
+            Posts
+
           </option>
 
-          <option value="Company">
-            Company
+          <option value="account">
+
+            Accounts
+
           </option>
 
         </select>

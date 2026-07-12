@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import api from '../../api/axios';
 
 import {
   ShieldBan,
@@ -19,6 +20,7 @@ import {
 const CompanyTable = ({
   companies,
   setCompanies,
+  onActionSuccess,
 }) => {
 
   /*
@@ -33,7 +35,7 @@ const CompanyTable = ({
   */
 
   const [blockReason, setBlockReason] = useState('');
-
+  const [customReason, setCustomReason] = useState('');
   /*
     أسباب جاهزة للحظر
   */
@@ -47,42 +49,30 @@ const CompanyTable = ({
     'Other',
   ];
 
-  /*
-    تنفيذ Block / Unblock
+  // تنفيذ الحظر عبر الباك اند
+  const blockCompany = () => {
+    const finalReason = blockReason === 'Other' ? customReason : blockReason;
 
-    ملاحظة:
-    حالياً Frontend فقط
-  */
+    api.post(`/admin/companies/${selectedCompany.id}/ban`, { ban_reason: finalReason }).then(() => {
+      onActionSuccess();
+      setSelectedCompany(null);
+      setBlockReason('');
+      setCustomReason('');
+    })
+      .catch((err) => {
+        console.error(err);
+        alert(err.response?.data?.message || 'An error occurred');
+      });
+  };
 
-  const toggleBlock = (companyId) => {
+  // تنفيذ فك الحظر عبر الباك اند
+  const unblockCompany = (companyId) => {
+    if (!confirm("Are you shure unban this company ?")) return;
 
-    setCompanies((prevCompanies) =>
-
-      prevCompanies.map((company) =>
-
-        company.id === companyId
-          ? {
-              ...company,
-              blocked: !company.blocked,
-            }
-          : company
-
-      )
-
-    );
-
-    /*
-      إغلاق النافذة
-    */
-
-    setSelectedCompany(null);
-
-    /*
-      تصفير السبب
-    */
-
-    setBlockReason('');
-
+    api.post(`/admin/companies/${companyId}/unban`)
+      .then(() => {
+        onActionSuccess();
+      })
   };
 
   return (
@@ -276,7 +266,7 @@ const CompanyTable = ({
                     {company.blocked ? (
 
                       <button
-                        onClick={() => toggleBlock(company.id)}
+                        onClick={() => unblockCompany(company.id)}
                         className="
                           flex items-center gap-2
                           px-4 py-2
@@ -410,6 +400,8 @@ const CompanyTable = ({
             {blockReason === 'Other' && (
 
               <textarea
+                value={customReason}
+                onChange={(e) => setCustomReason(e.target.value)}
                 placeholder="Write reason..."
                 className="
                   w-full
@@ -438,6 +430,7 @@ const CompanyTable = ({
                 onClick={() => {
                   setSelectedCompany(null);
                   setBlockReason('');
+                  setCustomReason('');
                 }}
                 className="
                   px-5 py-2.5
@@ -454,8 +447,8 @@ const CompanyTable = ({
               {/* زر التأكيد */}
 
               <button
-                disabled={!blockReason}
-                onClick={() => toggleBlock(selectedCompany.id)}
+                disabled={blockReason === 'Other' ? !customReason.trim() : !blockReason}
+                onClick={blockCompany}
                 className="
                   px-5 py-2.5
                   rounded-xl
