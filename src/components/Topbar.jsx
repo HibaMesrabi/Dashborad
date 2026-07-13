@@ -44,17 +44,17 @@ const Topbar = () => {
 
   const unread = notifications.filter((n) => !n.read).length;
 
-  useEffect(() => {
+  useEffect(() => { 
     const onClick = (e) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
         setOpen(false);
       }
     };
-    document.addEventListener('mousedown', onClick);
+    document.addEventListener('mousedown', onClick); // تعليمة تنتظر حدوث حدث متل النقر كتابة او سكرول 
     return () => document.removeEventListener('mousedown', onClick);
   }, []);
 
-  const markAllRead = () => {
+  const markAllRead = () => { 
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
   };
 
@@ -96,7 +96,7 @@ const Topbar = () => {
                   <p className="text-xs text-slate-400">{unread} unread</p>
                 </div>
                 <button
-                  onClick={markAllRead}
+                  onClick={markAllRead} // تمر على جميع الاشعارات 
                   className="text-xs text-orange-400 hover:text-orange-300 transition"
                 >
                   Mark all as read
@@ -112,7 +112,7 @@ const Topbar = () => {
                 )}
 
                 {notifications.map((n) => {
-                  const { Icon, color, bg } = iconFor(n.type);
+                  const { Icon, color, bg } = iconFor(n.type); // هي فانكشن تختار الايقونة حسب نوع الاشعار و تعطيه لون و خلفية مناسبة
                   return (
                     <div
                       key={n.id}

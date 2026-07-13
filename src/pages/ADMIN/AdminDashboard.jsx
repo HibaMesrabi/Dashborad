@@ -1,7 +1,7 @@
 import React from 'react';
 import AdminLayout from '../../layouts/AdminLayout';
-import { useNavigate } from 'react-router-dom';// استدعاء الكروت
-import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';// تسمح بالتنقل بين الصفحات بدون إعادة تحميل الصفحة يعني لما اضغط على شي كرت بينتقل ل صفحة تبعو 
+import { useState, useEffect } from 'react'; // ال state لتخزين بيانات يلي جاية من ال api , ال effect لتشغيل الكود عند تحميل الصفحة
 
 // الأيقونات
 import {
@@ -13,7 +13,7 @@ import {
   BarChart
 } from 'lucide-react';
 
-import api from '../../api/axios';
+import api from '../../api/axios'; // لارسال الطلبات لل api و استقبال الردود
 
 // استدعاء المخطط
 import AnalyticsChart from '../../components/dashboard/AnalyticsChart';

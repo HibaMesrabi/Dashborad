@@ -11,9 +11,9 @@ import {
   Settings,
   LogOut,
   Menu
-} from 'lucide-react';
+} from 'lucide-react'; // مكتبة أيقونات  سهلة الاستخدام
 
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; // للتنقل بين الصفحات
 
 /*
   Sidebar
@@ -31,20 +31,20 @@ const Sidebar = () => {
     حالة فتح وإغلاق الـ Sidebar
   */
 
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(true); // اذا كانت false، الـ Sidebar مغلقة، اذا كانت true، الـ Sidebar مفتوحة
 
   /*
     للتنقل بين الصفحات
   */
 
-  const navigate = useNavigate();
+  const navigate = useNavigate(); //للتنقل بين الصفحات بدل من تحديثها كل شوي 
 
   /*
     عناصر القائمة
   */
 
   const menuItems = [
-
+      // استخدمت array لان استخدمت map حتى تمر على كل عنصر 
     {
       title: "Dashboard",
       icon: <LayoutDashboard size={20} />,
@@ -102,10 +102,10 @@ const Sidebar = () => {
   */
 
   const handleLogout = () => {
+ 
+    localStorage.removeItem("role");// بعد تسجيل الدخول بتم حفظ نوع المستخدم
 
-    localStorage.removeItem("role");
-
-    navigate('/');
+    navigate('/'); // بعد تسجيل الخروج بتم توجيه المستخدم للصفحة الرئيسية
 
   };
 

@@ -35,7 +35,7 @@ const ReportedContent = () => {
       // نوع العنصر المبلغ عنه
       reportable_type: "post",
 
-      // عنوان البوست
+      // عنوان المنشور
       reported_item: "AI Conference 2025",
 
       // سبب البلاغ
@@ -44,8 +44,11 @@ const ReportedContent = () => {
       // حالة البلاغ
       status: "pending",
 
-      // تاريخ البلاغ
-      created_at: "2025-07-10"
+      // تاريخ إنشاء البلاغ
+      created_at: "2025-07-10",
+
+      // ملاحظة الأدمن
+      admin_notes: ""
     },
 
     {
@@ -61,7 +64,9 @@ const ReportedContent = () => {
 
       status: "dismissed",
 
-      created_at: "2025-07-08"
+      created_at: "2025-07-08",
+
+      admin_notes: "The report was reviewed and dismissed because no violation was found."
     },
 
     {
@@ -77,7 +82,9 @@ const ReportedContent = () => {
 
       status: "resolved",
 
-      created_at: "2025-07-05"
+      created_at: "2025-07-05",
+
+      admin_notes: "The reported post violated our community guidelines and has been removed."
     },
 
     {
@@ -93,7 +100,9 @@ const ReportedContent = () => {
 
       status: "pending",
 
-      created_at: "2025-07-03"
+      created_at: "2025-07-03",
+
+      admin_notes: ""
     },
 
     {
@@ -109,7 +118,9 @@ const ReportedContent = () => {
 
       status: "pending",
 
-      created_at: "2025-07-01"
+      created_at: "2025-07-01",
+
+      admin_notes: ""
     }
 
   ]);
@@ -138,9 +149,7 @@ const ReportedContent = () => {
     فلترة البيانات
   */
 
-  const filteredReports = reports.filter((report) => {
-
-    // البحث
+  const filteredReports = reports.filter((report) => {    // البحث
 
     const matchesSearch =
 
@@ -164,7 +173,7 @@ const ReportedContent = () => {
 
     const matchesStatus =
 
-      selectedStatus === 'All'
+      selectedStatus === "All"
 
         ? true
 
@@ -174,7 +183,7 @@ const ReportedContent = () => {
 
     const matchesType =
 
-      selectedType === 'All'
+      selectedType === "All"
 
         ? true
 
@@ -213,6 +222,7 @@ const ReportedContent = () => {
 
         <p className="text-slate-400">
 
+          Review and manage all reported posts and accounts.
 
         </p>
 
