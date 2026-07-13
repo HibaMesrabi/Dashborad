@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
 
   CheckCircle2,
 
-  XCircle
+  XCircle,
+
+  Eye,
+
+  X
 
 } from 'lucide-react';
 
@@ -21,20 +25,85 @@ const ReportedTable = ({
 }) => {
 
   /*
-    تغيير حالة البلاغ
+    حالة فتح وإغلاق نافذة الملاحظات
   */
 
-  const updateStatus = (id, newStatus) => {
+  const [showModal, setShowModal] = useState(false);
+
+  /*
+    نوع العملية
+    Resolve أو Dismiss أو View
+  */
+
+  const [actionType, setActionType] = useState("");
+
+  /*
+    البلاغ الحالي
+  */
+
+  const [selectedReport, setSelectedReport] = useState(null);
+
+  /*
+    الملاحظة التي سيكتبها الأدمن
+  */
+
+  const [adminNote, setAdminNote] = useState("");
+
+  /*
+    فتح نافذة كتابة الملاحظة
+  */
+
+  const openModal = (report, action) => {
+
+    setSelectedReport(report);
+
+    setActionType(action);
+
+    setAdminNote(report.admin_notes || "");
+
+    setShowModal(true);
+
+  };
+
+  /*
+    إغلاق النافذة
+  */
+
+  const closeModal = () => {
+
+    setShowModal(false);
+
+    setSelectedReport(null);
+
+    setAdminNote("");
+
+    setActionType("");
+
+  };
+
+  /*
+    حفظ الملاحظة وتغيير الحالة
+  */
+
+  const saveAction = () => {
 
     const updated = reports.map((report) =>
 
-      report.id === id
+      report.id === selectedReport.id
 
         ? {
 
             ...report,
 
-            status: newStatus
+            status:
+
+              actionType === "resolved"
+
+                ? "resolved"
+
+                : "dismissed",
+
+            admin_notes: adminNote
 
           }
 
@@ -44,127 +113,102 @@ const ReportedTable = ({
 
     setReports(updated);
 
-  };
-
-  const confirmStatusChange = (id, newStatus, message) => {
-
-    if (window.confirm(message)) {
-
-      updateStatus(id, newStatus);
-
-    }
+    closeModal();
 
   };
 
   return (
 
-    <div
+    <>
 
-      className="
-        bg-[#17365D]
-        rounded-3xl
-        overflow-hidden
-        shadow-2xl
-        border
-        border-[#21446D]
-      "
+      <div
 
-    >
+        className="
+          bg-[#17365D]
+          rounded-3xl
+          overflow-hidden
+          shadow-2xl
+          border
+          border-[#21446D]
+        "
 
-      {/* تغليف الجدول ليدعم الشاشات الصغيرة */}
+      >
 
-      <div className="overflow-x-auto">
+        {/* تغليف الجدول للشاشات الصغيرة */}
 
-        <table className="w-full">
+        <div className="overflow-x-auto">
 
-          {/* رأس الجدول */}
+          <table className="w-full">
 
-          <thead>
+            {/* رأس الجدول */}
 
-            <tr
+            <thead>
 
-              className="
-                bg-[#0B1F3A]
-                text-white
-                text-[16px]
-                font-semibold
-              "
+              <tr
 
-            >
+                className="
+                  bg-[#0B1F3A]
+                  text-white
+                  text-[16px]
+                  font-semibold
+                "
 
-              {/* رقم البلاغ */}
+              >
 
-              <th className="px-5 py-6 text-left">
+                <th className="px-5 py-6 text-left">
 
-                ID
+                  ID
 
-              </th>
+                </th>
 
-              {/* الشخص الذي قام بالإبلاغ */}
+                <th className="px-5 py-6 text-left">
 
-              <th className="px-5 py-6 text-left">
+                  Reporter
 
-                Reporter
+                </th>
 
-              </th>
+                <th className="px-5 py-6 text-left">
 
-              {/* العنصر المبلغ عنه */}
+                  Reported Item
 
-              <th className="px-5 py-6 text-left">
+                </th>
 
-                Reported Item
+                <th className="px-5 py-6 text-left">
 
-              </th>
+                  Type
 
-              {/* نوع العنصر */}
+                </th>
 
-              <th className="px-5 py-6 text-left">
+                <th className="px-5 py-6 text-left">
 
-                Type
+                  Reason
 
-              </th>
+                </th>
 
-              {/* سبب البلاغ */}
+                <th className="px-5 py-6 text-left">
 
-              <th className="px-5 py-6 text-left">
+                  Status
 
-                Reason
+                </th>
 
-              </th>
+                <th className="px-5 py-6 text-left">
 
-              {/* حالة البلاغ */}
+                  Created At
 
-              <th className="px-5 py-6 text-left">
+                </th>
 
-                Status
+                <th className="px-5 py-6 text-center">
 
-              </th>
+                  Actions
 
-              {/* تاريخ البلاغ */}
+                </th>
 
-              <th className="px-5 py-6 text-left">
+              </tr>
 
-                Created At
+            </thead>
 
-              </th>
-
-              {/* الإجراءات */}
-
-              <th className="px-5 py-6 text-center">
-
-                Actions
-
-              </th>
-
-            </tr>
-
-          </thead>
-
-          {/* جسم الجدول */}
-
-          <tbody>
-
-            {
+            <tbody>
+                          {
 
               reports.map((report) => (
 
@@ -198,7 +242,7 @@ const ReportedTable = ({
 
                   </td>
 
-                  {/* المنشور أو الحساب المبلغ عنه */}
+                  {/* العنصر المبلغ عنه */}
 
                   <td className="px-5 py-5 text-white text-[16px]">
 
@@ -229,34 +273,45 @@ const ReportedTable = ({
                     <span
 
                       className={`
+
                         px-4
+
                         py-1.5
+
                         rounded-full
+
                         text-sm
+
                         font-semibold
 
                         ${
+
                           report.status === "pending"
 
                             ? "bg-yellow-500/20 text-yellow-400"
 
                             : ""
+
                         }
 
                         ${
+
                           report.status === "resolved"
 
                             ? "bg-green-500/20 text-green-400"
 
                             : ""
+
                         }
 
                         ${
+
                           report.status === "dismissed"
 
                             ? "bg-red-500/20 text-red-400"
 
                             : ""
+
                         }
 
                       `}
@@ -276,7 +331,8 @@ const ReportedTable = ({
                     {report.created_at || "-"}
 
                   </td>
-                                    {/* الإجراءات */}
+
+                  {/* الإجراءات */}
 
                   <td className="px-5 py-5">
 
@@ -284,20 +340,26 @@ const ReportedTable = ({
 
                       report.status === "pending"
 
-                      ? (
+                      ?
+
+                      (
 
                         <div className="flex justify-center gap-3">
 
-                          {/* زر قبول البلاغ */}
+                          {/* قبول البلاغ */}
 
                           <button
 
                             onClick={() =>
-                              confirmStatusChange(
-                                report.id,
-                                "resolved",
-                                "Are you sure you want to accept this report?"
+
+                              openModal(
+
+                                report,
+
+                                "resolved"
+
                               )
+
                             }
 
                             className="
@@ -310,8 +372,7 @@ const ReportedTable = ({
                               justify-center
                               text-green-400
                               hover:bg-[#2D67BC]
-                              transition-all
-                              duration-200
+                              transition
                             "
 
                             title="Resolve"
@@ -322,16 +383,20 @@ const ReportedTable = ({
 
                           </button>
 
-                          {/* زر رفض البلاغ */}
+                          {/* رفض البلاغ */}
 
                           <button
 
                             onClick={() =>
-                              confirmStatusChange(
-                                report.id,
-                                "dismissed",
-                                "Are you sure you want to reject this report?"
+
+                              openModal(
+
+                                report,
+
+                                "dismissed"
+
                               )
+
                             }
 
                             className="
@@ -344,8 +409,7 @@ const ReportedTable = ({
                               justify-center
                               text-red-400
                               hover:bg-[#704A6D]
-                              transition-all
-                              duration-200
+                              transition
                             "
 
                             title="Dismiss"
@@ -360,15 +424,48 @@ const ReportedTable = ({
 
                       )
 
-                      : (
+                      :
+
+                      (
 
                         <div className="flex justify-center">
 
-                          <span className="text-slate-500 text-lg">
+                          {/* عرض الملاحظة */}
 
-                            —
+                          <button
 
-                          </span>
+                            onClick={() =>
+
+                              openModal(
+
+                                report,
+
+                                "view"
+
+                              )
+
+                            }
+
+                            className="
+                              w-10
+                              h-10
+                              rounded-xl
+                              bg-[#23539A]
+                              flex
+                              items-center
+                              justify-center
+                              text-blue-300
+                              hover:bg-[#2D67BC]
+                              transition
+                            "
+
+                            title="View Note"
+
+                          >
+
+                            <Eye size={18} />
+
+                          </button>
 
                         </div>
 
@@ -391,9 +488,166 @@ const ReportedTable = ({
       </div>
 
     </div>
+          {/* نافذة الملاحظات */}
+
+      {
+
+        showModal && (
+
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+
+            <div className="w-full max-w-lg rounded-3xl bg-[#17365D] border border-[#21446D] shadow-2xl">
+
+              {/* رأس النافذة */}
+
+              <div className="flex items-center justify-between px-6 py-5 border-b border-[#21446D]">
+
+                <h2 className="text-xl font-bold text-white">
+
+                  {
+
+                    actionType === "resolved"
+
+                      ? "Resolve Report"
+
+                      : actionType === "dismissed"
+
+                      ? "Dismiss Report"
+
+                      : "Admin Note"
+
+                  }
+
+                </h2>
+
+                {/* زر الإغلاق */}
+
+                <button
+
+                  onClick={closeModal}
+
+                  className="text-slate-300 hover:text-white"
+
+                >
+
+                  <X size={20} />
+
+                </button>
+
+              </div>
+
+              {/* محتوى النافذة */}
+
+              <div className="p-6">
+
+                <label className="block text-slate-300 mb-3">
+
+                  Admin Note
+
+                </label>
+
+                <textarea
+
+                  rows={6}
+
+                  value={adminNote}
+
+                  onChange={(e) => setAdminNote(e.target.value)}
+
+                  readOnly={actionType === "view"}
+
+                  placeholder="Write your note here..."
+
+                  className="
+                    w-full
+                    bg-[#0B1F3A]
+                    border
+                    border-[#21446D]
+                    rounded-2xl
+                    px-4
+                    py-3
+                    text-white
+                    resize-none
+                    outline-none
+                    focus:border-orange-400
+                  "
+
+                />
+
+              </div>
+
+              {/* أزرار النافذة */}
+
+              <div className="flex justify-end gap-3 px-6 py-5 border-t border-[#21446D]">
+
+                {/* زر إغلاق */}
+
+                <button
+
+                  onClick={closeModal}
+
+                  className="
+                    px-5
+                    py-2.5
+                    rounded-xl
+                    bg-slate-600
+                    hover:bg-slate-500
+                    text-white
+                    transition
+                  "
+
+                >
+
+                  Close
+
+                </button>
+
+                {/* زر الحفظ يظهر فقط عند قبول أو رفض البلاغ */}
+
+                {
+
+                  actionType !== "view" && (
+
+                    <button
+
+                      onClick={saveAction}
+
+                      className="
+                        px-6
+                        py-2.5
+                        rounded-xl
+                        bg-orange-500
+                        hover:bg-orange-600
+                        text-white
+                        font-semibold
+                        transition
+                      "
+
+                    >
+
+                      Save
+
+                    </button>
+
+                  )
+
+                }
+
+              </div>
+
+            </div>
+
+          </div>
+
+        )
+
+      }
+
+    </>
 
   );
 
 };
 
 export default ReportedTable;
+
