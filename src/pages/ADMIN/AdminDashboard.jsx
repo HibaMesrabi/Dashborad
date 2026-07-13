@@ -130,46 +130,7 @@ const AdminDashboard = () => {
       {/* المخطط  */}
       <AnalyticsChart />
 
-      {/* معلومات الادمن*/}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-        <div className="bg-[#112D4E] p-6 rounded-2xl shadow-xl animate-fadeUp">
-          <h2 className="text-xl font-bold mb-4">
-            Admin Information
-          </h2>
-
-          <p className="text-slate-300">Name: Admin User</p>
-          <p className="text-slate-300">Email: admin@gmail.com</p>
-          <p className="text-slate-300">Role: Super Admin</p>
-        </div>
-
-        <div className="bg-[#112D4E] p-6 rounded-2xl shadow-xl animate-fadeUp">
-          <h2 className="text-xl font-bold mb-4">
-            Recent Activity
-          </h2>
-
-          <ul className="space-y-3 text-slate-300">
-
-            <li className="flex justify-between">
-              <span>New user registered</span>
-              <span className="text-xs text-slate-400">2 min ago</span>
-            </li>
-
-            <li className="flex justify-between">
-              <span>News approved</span>
-              <span className="text-xs text-slate-400">10 min ago</span>
-            </li>
-
-            <li className="flex justify-between">
-              <span>Company added news</span>
-              <span className="text-xs text-slate-400">1 hour ago</span>
-            </li>
-
-          </ul>
-
-        </div>
-
-      </div>{/*أنيميشن*/}
+      {/*أنيميشن*/}
       <style>
         {` 
         @keyframes fadeUp { 
