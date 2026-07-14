@@ -15,6 +15,8 @@ import {
 
 import { useNavigate } from 'react-router-dom'; // للتنقل بين الصفحات
 
+import api from '../api/axios';
+
 /*
   Sidebar
 
@@ -44,7 +46,7 @@ const Sidebar = () => {
   */
 
   const menuItems = [
-      // استخدمت array لان استخدمت map حتى تمر على كل عنصر 
+    // استخدمت array لان استخدمت map حتى تمر على كل عنصر 
     {
       title: "Dashboard",
       icon: <LayoutDashboard size={20} />,
@@ -102,10 +104,21 @@ const Sidebar = () => {
   */
 
   const handleLogout = () => {
- 
-    localStorage.removeItem("role");// بعد تسجيل الدخول بتم حفظ نوع المستخدم
+    if (!confirm("Are you sure you want to logout?")) return;
 
-    navigate('/'); // بعد تسجيل الخروج بتم توجيه المستخدم للصفحة الرئيسية
+    api.post('/logout')
+      .then(() => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+        navigate('/');
+      })
+      .catch((err) => {
+        console.error(err);
+        // حتى لو فشل الطلب (مثلاً التوكن منتهي أصلاً)، نظف الفرونت وسجل خروج المستخدم
+        localStorage.removeItem("token");
+        localStorage.removeItem("role");
+        navigate('/');
+      });
 
   };
 
@@ -123,7 +136,7 @@ const Sidebar = () => {
     */
 
     <div
-  className={`
+      className={`
     ${open ? "w-64" : "w-20"}
 
     /* تثبيت الـ Sidebar على الشاشة */
@@ -150,7 +163,7 @@ const Sidebar = () => {
     /* حتى يبقى فوق كل العناصر */
     z-50
  ` }
->
+    >
 
       {/* القسم العلوي */}
 

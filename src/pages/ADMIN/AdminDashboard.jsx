@@ -68,8 +68,7 @@ const AdminDashboard = () => {
     { title: "Companies", value: statistics.companies, icon: Building, color: "bg-purple-500", route: "/companies" },
     { title: "News", value: statistics.posts, icon: Newspaper, color: "bg-orange-500", route: "/news" },
     { title: "Reports", value: statistics.reports, icon: AlertTriangle, color: "bg-red-500", route: "/Reported" },
-    { title: "Packages", value: statistics.packages, icon: Package, color: "bg-green-500", route: "/packages" },
-  ];
+    { title: "Packages", value: statistics.plans, icon: Package, color: "bg-green-500", route: "/packages" },];
 
   return (
     <AdminLayout>
