@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Plus,
   Search,
@@ -13,134 +13,28 @@ import PackageModal from '../../components/packages/PackageModal';
 import CompanyPlansTable from '../../components/packages/CompanyPlansTable';
 import ConfirmModal from '../../components/common/ConfirmModal';
 
+import api from '../../api/axios';
+
 const Packages = () => {
 
   /*
     التبويب الحالي
   */
-
   const [tab, setTab] = useState('plans');
 
   /*
-    بيانات الباقات
+    بيانات الباقات القادمة من Laravel
   */
-
-  const [plans, setPlans] = useState([
-
-    {
-      id: 1,
-      name: 'Basic',
-      posts_count: 20,
-      price: 49.99,
-      price_per_post: 2.50,
-      is_active: true,
-      created_at: '2025-01-10'
-    },
-
-    {
-      id: 2,
-      name: 'Standard',
-      posts_count: 50,
-      price: 99.99,
-      price_per_post: 2.00,
-      is_active: true,
-      created_at: '2025-02-14'
-    },
-
-    {
-      id: 3,
-      name: 'Pro',
-      posts_count: 120,
-      price: 199.99,
-      price_per_post: 1.67,
-      is_active: true,
-      created_at: '2025-03-05'
-    },
-
-    {
-      id: 4,
-      name: 'Enterprise',
-      posts_count: 500,
-      price: 699.99,
-      price_per_post: 1.40,
-      is_active: false,
-      created_at: '2025-04-20'
-    }
-
-  ]);
+  const [plans, setPlans] = useState([]);
 
   /*
-    اشتراكات الشركات
+    اشتراكات الشركات القادمة من Laravel
   */
-
-  const [companyPlans] = useState([
-
-    {
-      id: 1,
-      company_id: 1,
-      company_name: 'Neural Code',
-      plan_id: 3,
-      plan_name: 'Pro',
-      posts_remaining: 80,
-      status: 'active',
-      price_paid: 199.99,
-      created_at: '2025-05-10'
-    },
-
-    {
-      id: 2,
-      company_id: 2,
-      company_name: 'VisionX',
-      plan_id: 2,
-      plan_name: 'Standard',
-      posts_remaining: 30,
-      status: 'active',
-      price_paid: 99.99,
-      created_at: '2025-06-01'
-    },
-
-    {
-      id: 3,
-      company_id: 3,
-      company_name: 'DeepMind Syria',
-      plan_id: 1,
-      plan_name: 'Basic',
-      posts_remaining: 0,
-      status: 'expired',
-      price_paid: 49.99,
-      created_at: '2025-03-15'
-    },
-
-    {
-      id: 4,
-      company_id: 6,
-      company_name: 'Future AI',
-      plan_id: 3,
-      plan_name: 'Pro',
-      posts_remaining: 110,
-      status: 'active',
-      price_paid: 199.99,
-      created_at: '2025-06-25'
-    },
-
-    {
-      id: 5,
-      company_id: 7,
-      company_name: 'Quantum Tech',
-      plan_id: 4,
-      plan_name: 'Enterprise',
-      posts_remaining: 420,
-      status: 'active',
-      price_paid: 699.99,
-      created_at: '2025-04-28'
-    }
-
-  ]);
+  const [companyPlans, setCompanyPlans] = useState([]);
 
   /*
     نافذة إضافة وتعديل الباقة
   */
-
   const [modalOpen, setModalOpen] = useState(false);
 
   const [editing, setEditing] = useState(null);
@@ -148,172 +42,177 @@ const Packages = () => {
   /*
     حذف الباقة
   */
-
   const [deleteId, setDeleteId] = useState(null);
 
   /*
     الباقة التي سيتم تفعيلها أو إيقافها
   */
-
   const [togglePlan, setTogglePlan] = useState(null);
 
   /*
     البحث والفلترة
   */
-
   const [search, setSearch] = useState('');
 
   const [statusFilter, setStatusFilter] = useState('All');
 
+  /*
+    جلب جميع الباقات من Laravel
+  */
+  const fetchPlans = async () => {
+    try {
+
+      const response = await api.get('/packages');
+
+      setPlans(response.data.plans);
+
+    } catch (error) {
+
+      console.error('Error Loading Packages:', error);
+
+    }
+  };
+
+  /*
+    جلب اشتراكات الشركات من Laravel
+  */
+  const fetchCompanySubscriptions = async () => {
+    try {
+
+      const response = await api.get('/packages/company-subscriptions');
+
+      setCompanyPlans(response.data.subscriptions.data);
+
+    } catch (error) {
+
+      console.error('Error Loading Company Subscriptions:', error);
+
+    }
+  };
+
+  /*
+    عند فتح الصفحة لأول مرة
+    يتم جلب الباقات والاشتراكات
+  */
+  useEffect(() => {
+
+    fetchPlans();
+
+    fetchCompanySubscriptions();
+
+  }, []);
+
   const filteredPlans = plans.filter((p) => {
 
-    const matchSearch =
-
-      p.name
-        .toLowerCase()
-        .includes(search.toLowerCase());
-
-    const matchStatus =
-
-      statusFilter === 'All'
-
-        ? true
-
-        : statusFilter === 'Active'
-
-        ? p.is_active
-
-        : !p.is_active;
-
-    return matchSearch && matchStatus;
-
-  });
-
-  const filteredSubs = companyPlans.filter((s) =>
-
-    s.company_name
+  const matchSearch =
+    p.name
       .toLowerCase()
-      .includes(search.toLowerCase())
+      .includes(search.toLowerCase());
 
-    ||
+  const matchStatus =
+    statusFilter === 'All'
+      ? true
+      : statusFilter === 'Active'
+      ? p.is_active
+      : !p.is_active;
 
-    s.plan_name
-      .toLowerCase()
-      .includes(search.toLowerCase())
+  return matchSearch && matchStatus;
 
-  );
-    /*
-    إضافة أو تعديل باقة
-  */
+});
 
-  const handleSave = (data) => {
+const filteredSubs = companyPlans.filter((s) =>
 
+  s.company_name
+    .toLowerCase()
+    .includes(search.toLowerCase())
+
+  ||
+
+  s.plan_name
+    .toLowerCase()
+    .includes(search.toLowerCase())
+
+);
+
+/*
+  إضافة أو تعديل باقة
+*/
+const handleSave = async (data) => {
+
+  try {
+
+    // إذا كان يوجد id فهذا يعني تعديل
     if (data.id) {
 
-      setPlans((prev) =>
-
-        prev.map((p) =>
-
-          p.id === data.id
-
-            ? { ...p, ...data }
-
-            : p
-
-        )
-
-      );
+      await api.put(`/packages/${data.id}`, data);
 
     }
 
+    // إذا لم يوجد id فهذا يعني إضافة
     else {
 
-      const newId =
-
-        plans.length
-
-          ? Math.max(...plans.map((p) => p.id)) + 1
-
-          : 1;
-
-      setPlans((prev) => [
-
-        ...prev,
-
-        {
-
-          ...data,
-
-          id: newId,
-
-          created_at: new Date()
-            .toISOString()
-            .slice(0, 10)
-
-        }
-
-      ]);
+      await api.post('/packages', data);
 
     }
+
+    // إعادة تحميل البيانات بعد نجاح العملية
+    await fetchPlans();
 
     setModalOpen(false);
 
     setEditing(null);
 
-  };
+  } catch (error) {
 
-  /*
-    تنفيذ التفعيل أو الإيقاف
-    بعد الضغط على Confirm
-  */
+    console.error('Error Saving Package:', error);
 
-  const handleToggle = () => {
+  }
 
-    if (!togglePlan) return;
+};
 
-    setPlans((prev) =>
+/*
+  تنفيذ التفعيل أو الإيقاف
+*/
+const handleToggle = async () => {
 
-      prev.map((p) =>
+  if (!togglePlan) return;
 
-        p.id === togglePlan.id
+  try {
 
-          ? {
+    await api.patch(`/packages/${togglePlan.id}/toggle-status`);
 
-              ...p,
-
-              is_active: !p.is_active
-
-            }
-
-          : p
-
-      )
-
-    );
+    await fetchPlans();
 
     setTogglePlan(null);
 
-  };
+  } catch (error) {
 
-  /*
-    حذف الباقة
-  */
+    console.error('Error Updating Status:', error);
 
-  const handleDelete = () => {
+  }
 
-    setPlans((prev) =>
+};
 
-      prev.filter((p) =>
+/*
+  حذف الباقة
+*/
+const handleDelete = async () => {
 
-        p.id !== deleteId
+  try {
 
-      )
+    await api.delete(`/packages/${deleteId}`);
 
-    );
+    await fetchPlans();
 
     setDeleteId(null);
 
-  };
+  } catch (error) {
+
+    console.error('Error Deleting Package:', error);
+
+  }
+
+};
 
   return (
 
