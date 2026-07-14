@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { LockKeyhole, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { LockKeyhole, ArrowLeft, Loader2 } from 'lucide-react';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
+import api from '../../api/axios';
 
 /*
   صفحة إعادة تعيين كلمة المرور
@@ -8,42 +9,73 @@ import { Link } from 'react-router-dom';
 
 const ResetPassword = () => {
 
-  // كلمة المرور الجديدة
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  // جلب التوكن والإيميل تلقائياً من الرابط الذي أُرسل للمستخدم
+  const token = searchParams.get('token');
+  const email = searchParams.get('email');
+
   const [password, setPassword] = useState('');
-
-  // تأكيد كلمة المرور
   const [confirmPassword, setConfirmPassword] = useState('');
-
-  // رسالة نجاح مؤقتة
   const [success, setSuccess] = useState(false);
+  const [error, setError] = useState(''); // لعرض الأخطاء القادمة من لارافيل
+  const [loading, setLoading] = useState(false); // لحالة جاري الإرسال
+
+  // للتحقق من أن المستخدم دخل للصفحة عبر رابط صحيح يحتوي على التوكن
+  useEffect(() => {
+    if (!token || !email) {
+      setError("Invalid or expired link. Please request a new password reset.");
+    }
+  }, [token, email]);
 
   /*
     عند الضغط على زر إعادة التعيين
   */
-  const handleSubmit = (e) => {
-
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setSuccess(false);
 
-    // التحقق من تطابق كلمتي المرور
-    if (password !== confirmPassword) {
-
-      alert('Passwords do not match.');
-
+    if (!token || !email) {
+      setError("can't reset password. Invalid or expired link.");
       return;
-
     }
 
-    console.log({
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
 
-      password,
+    setLoading(true);
 
-      confirmPassword
+    try {
+      // إرسال البيانات للـ API الخاص بلارافيل
+      await api.post('/password/reset', {
+        token,
+        email,
+        password,
+        password_confirmation: confirmPassword,
+      });
 
-    });
+      setSuccess(true);
+      setPassword('');
+      setConfirmPassword('');
 
-    // إظهار رسالة نجاح مؤقتة
-    setSuccess(true);
+      // تحويل المستخدم لصفحة تسجيل الدخول تلقائياً بعد 3 ثوانٍ
+      setTimeout(() => {
+        navigate('/login');
+      }, 3000);
 
+    } catch (err) {
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message);
+      } else {
+        setError("Unable to reset password. Please try again later.");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -103,28 +135,17 @@ const ResetPassword = () => {
           Create a new password for your account.
         </p>
 
-        {
+        {success && (
+          <div className="mb-6 p-4 rounded-2xl bg-green-500/10 border border-green-500/30 text-green-400 text-center">
+            Password changed successfully! Redirecting to login...
+          </div>
+        )}
 
-          success && (
-
-            <div
-              className="
-                mb-6
-                p-4
-                rounded-2xl
-                bg-green-500/10
-                border
-                border-green-500/30
-                text-green-400
-                text-center
-              "
-            >
-              Password changed successfully.
-            </div>
-
-          )
-
-        }
+        {error && (
+          <div className="mb-6 p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 text-center">
+            {error}
+          </div>
+        )}
 
         {/* الفورم */}
 

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Mail, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
-// Axios للاتصال مع Laravel
-import api from '../api/axios';
+
+import api from '../../api/axios';
 
 /*
   Forgot Password Page
