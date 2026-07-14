@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import AdminLayout from '../../layouts/AdminLayout';
 
@@ -6,6 +6,8 @@ import ReportsStats from '../../components/reports/ReportsStats';
 import ReportsCharts from '../../components/reports/ReportsCharts';
 import ReportsFilters from '../../components/reports/ReportsFilters';
 import ReportsTable from '../../components/reports/ReportsTable';
+
+import api from '../../api/axios';
 
 /*
   Reports Page (Admin Dashboard)
@@ -21,69 +23,28 @@ const Reports = () => {
     Monthly reports data (mock data for now)
   */
 
-  const [reportsData] = useState([
+  const [counters, setCounters] = useState({
+    total_users: 0,
+    total_companies: 0,
+    total_news: 0,
+    total_reports: 0
+  });
 
-    {
-      id: 1,
-      year: 2026,
-      month: 'January',
-      users: 40,
-      companies: 5,
-      news: 30,
-      reports: 2
-    },
+  const [chartsData, setChartsData] = useState([]);
 
-    {
-      id: 2,
-      year: 2026,
-      month: 'February',
-      users: 55,
-      companies: 7,
-      news: 45,
-      reports: 3
-    },
+  const [monthlyReports, setMonthlyReports] = useState([]);
 
-    {
-      id: 3,
-      year: 2026,
-      month: 'March',
-      users: 70,
-      companies: 8,
-      news: 60,
-      reports: 5
-    },
+  const [pagination, setPagination] = useState({
+    current_page: 1,
+    last_page: 1,
+    per_page: 12,
+    total: 0
+  });
 
-    {
-      id: 4,
-      year: 2026,
-      month: 'April',
-      users: 90,
-      companies: 10,
-      news: 75,
-      reports: 4
-    },
+  const [currentPage, setCurrentPage] = useState(1);
 
-    {
-      id: 5,
-      year: 2026,
-      month: 'May',
-      users: 110,
-      companies: 12,
-      news: 90,
-      reports: 6
-    },
-
-    {
-      id: 6,
-      year: 2026,
-      month: 'June',
-      users: 130,
-      companies: 14,
-      news: 105,
-      reports: 7
-    }
-
-  ]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   /*
     Filters state
@@ -96,20 +57,63 @@ const Reports = () => {
     Apply filtering logic
   */
 
-  const filteredData = reportsData.filter((item) => {
+  useEffect(() => {
 
-    const matchYear =
-      selectedYear === 'All'
-        ? true
-        : item.year === Number(selectedYear);
+    const fetchReportsData = async () => {
 
-    const matchMonth =
-      selectedMonth === 'All'
-        ? true
-        : item.month === selectedMonth;
+      try {
 
-    return matchYear && matchMonth;
-  });
+        setLoading(true);
+        setError(null);
+
+        const response = await api.get('/admin/reports-analytics', {
+          params: {
+            year: selectedYear === 'All' ? undefined : selectedYear,
+            month: selectedMonth === 'All' ? undefined : selectedMonth,
+            page: currentPage
+          }
+        });
+
+        const result = response.data.data;
+
+        setCounters(result.counters);
+
+        const mergedCharts = result.charts.months_labels.map((month, index) => ({
+          month,
+          users: result.charts.users_growth[index],
+          news: result.charts.news_growth[index]
+        }));
+
+        setChartsData(mergedCharts);
+
+        setMonthlyReports(result.monthly_reports.records);
+        setPagination(result.monthly_reports.pagination);
+
+      } catch (err) {
+
+        setError('حدث خطأ أثناء جلب بيانات التقارير');
+
+      } finally {
+
+        setLoading(false);
+
+      }
+
+    };
+
+    fetchReportsData();
+
+  }, [selectedYear, selectedMonth, currentPage]);
+
+  const handleYearChange = (year) => {
+    setSelectedYear(year);
+    setCurrentPage(1);
+  };
+
+  const handleMonthChange = (month) => {
+    setSelectedMonth(month);
+    setCurrentPage(1);
+  };
 
   return (
 
@@ -117,34 +121,37 @@ const Reports = () => {
 
       {/* Page Header */}
 
-      <div className="mb-8">
-
-        <h1 className="text-3xl font-bold text-white mb-2">
-          Reports Dashboard
-        </h1>
-
-      </div>
+      {error && (
+        <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400">
+          {error}
+        </div>
+      )}
 
       {/* Stats Cards */}
 
-      <ReportsStats data={reportsData} />
+      <ReportsStats counters={counters} />
 
       {/* Charts Section */}
 
-      <ReportsCharts data={reportsData} />
+      <ReportsCharts data={chartsData} />
 
       {/* Filters */}
 
       <ReportsFilters
         selectedYear={selectedYear}
-        setSelectedYear={setSelectedYear}
+        setSelectedYear={handleYearChange}
         selectedMonth={selectedMonth}
-        setSelectedMonth={setSelectedMonth}
+        setSelectedMonth={handleMonthChange}
       />
 
       {/* Table */}
 
-      <ReportsTable reports={filteredData} />
+      <ReportsTable
+        reports={monthlyReports}
+        loading={loading}
+        pagination={pagination}
+        onPageChange={setCurrentPage}
+      />
 
     </AdminLayout>
 
