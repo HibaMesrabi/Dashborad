@@ -62,7 +62,7 @@ const Packages = () => {
   const fetchPlans = async () => {
     try {
 
-      const response = await api.get('/packages');
+      const response = await api.get('/admin/packages');
 
       setPlans(response.data.plans);
 
@@ -79,7 +79,7 @@ const Packages = () => {
   const fetchCompanySubscriptions = async () => {
     try {
 
-      const response = await api.get('/packages/company-subscriptions');
+      const response = await api.get('/admin/packages/company-subscriptions');
 
       setCompanyPlans(response.data.subscriptions.data);
 
@@ -144,14 +144,14 @@ const handleSave = async (data) => {
     // إذا كان يوجد id فهذا يعني تعديل
     if (data.id) {
 
-      await api.put(`/packages/${data.id}`, data);
+      await api.put(`/admin/packages/${data.id}`, data);
 
     }
 
     // إذا لم يوجد id فهذا يعني إضافة
     else {
 
-      await api.post('/packages', data);
+      await api.post('/admin/packages', data);
 
     }
 
@@ -179,7 +179,7 @@ const handleToggle = async () => {
 
   try {
 
-    await api.patch(`/packages/${togglePlan.id}/toggle-status`);
+    await api.patch(`/admin/packages/${togglePlan.id}/toggle-status`);
 
     await fetchPlans();
 
@@ -200,7 +200,7 @@ const handleDelete = async () => {
 
   try {
 
-    await api.delete(`/packages/${deleteId}`);
+    await api.delete(`/admin/packages/${deleteId}`);
 
     await fetchPlans();
 

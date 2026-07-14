@@ -85,62 +85,62 @@ const ReportedTable = ({
   /*
     حفظ الملاحظة وتغيير الحالة
   */
-/*
-  إرسال القرار إلى Laravel
-*/
-const saveAction = async () => {
+  /*
+    إرسال القرار إلى Laravel
+  */
+  const saveAction = async () => {
 
-  try {
+    try {
 
-    if (actionType === "resolved") {
+      if (actionType === "resolved") {
 
-      await api.patch(
+        await api.patch(
 
-        `/admin/reported/${selectedReport.id}/resolve`,
+          `/admin/reported/${selectedReport.id}/resolve`,
 
-        {
+          {
 
-          admin_notes: adminNote
+            admin_notes: adminNote
 
-        }
+          }
 
-      );
+        );
+
+      }
+
+      else {
+
+        await api.patch(
+
+          `/admin/reported/${selectedReport.id}/dismiss`,
+
+          {
+
+            admin_notes: adminNote
+
+          }
+
+        );
+
+      }
+
+      /*
+        تحديث البيانات من قاعدة البيانات
+      */
+
+      await fetchReports();
+
+      closeModal();
 
     }
 
-    else {
+    catch (error) {
 
-      await api.patch(
-
-        `/admin/reported/${selectedReport.id}/dismiss`,
-
-        {
-
-          admin_notes: adminNote
-
-        }
-
-      );
+      console.error(error);
 
     }
 
-    /*
-      تحديث البيانات من قاعدة البيانات
-    */
-
-    await fetchReports();
-
-    closeModal();
-
-  }
-
-  catch (error) {
-
-    console.error(error);
-
-  }
-
-};
+  };
 
   return (
 
@@ -233,15 +233,15 @@ const saveAction = async () => {
             </thead>
 
             <tbody>
-                          {
+              {
 
-              reports.map((report) => (
+                reports.map((report) => (
 
-                <tr
+                  <tr
 
-                  key={report.id}
+                    key={report.id}
 
-                  className="
+                    className="
                     border-b
                     border-[#21446D]
                     hover:bg-[#21446D]
@@ -249,55 +249,55 @@ const saveAction = async () => {
                     duration-200
                   "
 
-                >
+                  >
 
-                  {/* رقم البلاغ */}
+                    {/* رقم البلاغ */}
 
-                  <td className="px-5 py-5 text-white text-[16px]">
+                    <td className="px-5 py-5 text-white text-[16px]">
 
-                    {report.id}
+                      {report.id}
 
-                  </td>
+                    </td>
 
-                  {/* الشخص الذي أرسل البلاغ */}
+                    {/* الشخص الذي أرسل البلاغ */}
 
-                  <td className="px-5 py-5 text-white text-[16px]">
+                    <td className="px-5 py-5 text-white text-[16px]">
 
-                    {report.reporter_name}
+                      {report.reporter_name}
 
-                  </td>
+                    </td>
 
-                  {/* العنصر المبلغ عنه */}
+                    {/* العنصر المبلغ عنه */}
 
-                  <td className="px-5 py-5 text-white text-[16px]">
+                    <td className="px-5 py-5 text-white text-[16px]">
 
-                    {report.reported_item}
+                      {report.reported_item}
 
-                  </td>
+                    </td>
 
-                  {/* نوع العنصر */}
+                    {/* نوع العنصر */}
 
-                  <td className="px-5 py-5 text-white text-[16px] capitalize">
+                    <td className="px-5 py-5 text-white text-[16px] capitalize">
 
-                    {report.reportable_type}
+                      {report.reportable_type}
 
-                  </td>
+                    </td>
 
-                  {/* سبب البلاغ */}
+                    {/* سبب البلاغ */}
 
-                  <td className="px-5 py-5 text-white text-[16px]">
+                    <td className="px-5 py-5 text-white text-[16px]">
 
-                    {report.reason}
+                      {report.reason}
 
-                  </td>
+                    </td>
 
-                  {/* حالة البلاغ */}
+                    {/* حالة البلاغ */}
 
-                  <td className="px-5 py-5">
+                    <td className="px-5 py-5">
 
-                    <span
+                      <span
 
-                      className={`
+                        className={`
 
                         px-4
 
@@ -309,85 +309,78 @@ const saveAction = async () => {
 
                         font-semibold
 
-                        ${
-
-                          report.status === "pending"
+                        ${report.status === "pending"
 
                             ? "bg-yellow-500/20 text-yellow-400"
 
                             : ""
 
-                        }
+                          }
 
-                        ${
-
-                          report.status === "resolved"
+                        ${report.status === "resolved"
 
                             ? "bg-green-500/20 text-green-400"
 
                             : ""
 
-                        }
+                          }
 
-                        ${
-
-                          report.status === "dismissed"
+                        ${report.status === "dismissed"
 
                             ? "bg-red-500/20 text-red-400"
 
                             : ""
 
-                        }
+                          }
 
                       `}
 
-                    >
+                      >
 
-                      {report.status}
+                        {report.status}
 
-                    </span>
+                      </span>
 
-                  </td>
+                    </td>
 
-                  {/* تاريخ البلاغ */}
+                    {/* تاريخ البلاغ */}
 
-                  <td className="px-5 py-5 text-white text-[16px]">
+                    <td className="px-5 py-5 text-white text-[16px]">
 
-                    {report.created_at || "-"}
+                      {report.created_at ? new Date(report.created_at).toLocaleDateString('en-GB', { hour: '2-digit', minute: '2-digit' }) : "-"}
+                    </td>
 
-                  </td>
+                    {/* الإجراءات */}
 
-                  {/* الإجراءات */}
+                    <td className="px-5 py-5">
 
-                  <td className="px-5 py-5">
+                      {
 
-                    {
+                        report.status === "pending"
 
-                      report.status === "pending"
+                          ?
 
-                      ?
+                          (
 
-                      (
+                            <div className="flex justify-center gap-3">
 
-                        <div className="flex justify-center gap-3">
+                              {/* قبول البلاغ */}
 
-                          {/* قبول البلاغ */}
+                              <button
 
-                          <button
+                                onClick={() =>
 
-                            onClick={() =>
+                                  openModal(
 
-                              openModal(
+                                    report,
 
-                                report,
+                                    "resolved"
 
-                                "resolved"
+                                  )
 
-                              )
+                                }
 
-                            }
-
-                            className="
+                                className="
                               w-10
                               h-10
                               rounded-xl
@@ -400,31 +393,31 @@ const saveAction = async () => {
                               transition
                             "
 
-                            title="Resolve"
+                                title="Resolve"
 
-                          >
+                              >
 
-                            <CheckCircle2 size={18} />
+                                <CheckCircle2 size={18} />
 
-                          </button>
+                              </button>
 
-                          {/* رفض البلاغ */}
+                              {/* رفض البلاغ */}
 
-                          <button
+                              <button
 
-                            onClick={() =>
+                                onClick={() =>
 
-                              openModal(
+                                  openModal(
 
-                                report,
+                                    report,
 
-                                "dismissed"
+                                    "dismissed"
 
-                              )
+                                  )
 
-                            }
+                                }
 
-                            className="
+                                className="
                               w-10
                               h-10
                               rounded-xl
@@ -437,41 +430,41 @@ const saveAction = async () => {
                               transition
                             "
 
-                            title="Dismiss"
+                                title="Dismiss"
 
-                          >
+                              >
 
-                            <XCircle size={18} />
+                                <XCircle size={18} />
 
-                          </button>
+                              </button>
 
-                        </div>
+                            </div>
 
-                      )
+                          )
 
-                      :
+                          :
 
-                      (
+                          (
 
-                        <div className="flex justify-center">
+                            <div className="flex justify-center">
 
-                          {/* عرض الملاحظة */}
+                              {/* عرض الملاحظة */}
 
-                          <button
+                              <button
 
-                            onClick={() =>
+                                onClick={() =>
 
-                              openModal(
+                                  openModal(
 
-                                report,
+                                    report,
 
-                                "view"
+                                    "view"
 
-                              )
+                                  )
 
-                            }
+                                }
 
-                            className="
+                                className="
                               w-10
                               h-10
                               rounded-xl
@@ -484,36 +477,36 @@ const saveAction = async () => {
                               transition
                             "
 
-                            title="View Note"
+                                title="View Note"
 
-                          >
+                              >
 
-                            <Eye size={18} />
+                                <Eye size={18} />
 
-                          </button>
+                              </button>
 
-                        </div>
+                            </div>
 
-                      )
+                          )
 
-                    }
+                      }
 
-                  </td>
+                    </td>
 
-                </tr>
+                  </tr>
 
-              ))
+                ))
 
-            }
+              }
 
-          </tbody>
+            </tbody>
 
-        </table>
+          </table>
+
+        </div>
 
       </div>
-
-    </div>
-          {/* نافذة الملاحظات */}
+      {/* نافذة الملاحظات */}
 
       {
 
@@ -537,9 +530,9 @@ const saveAction = async () => {
 
                       : actionType === "dismissed"
 
-                      ? "Dismiss Report"
+                        ? "Dismiss Report"
 
-                      : "Admin Note"
+                        : "Admin Note"
 
                   }
 

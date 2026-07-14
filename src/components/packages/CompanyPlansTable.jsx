@@ -64,8 +64,7 @@ const CompanyPlansTable = ({ rows }) => {
               </td>
 
               <td className="px-6 py-5 text-slate-300 text-sm">
-                {new Date(r.created_at).toLocaleDateString('en-GB')}
-              </td>
+                {new Date(r.purchased_at).toLocaleDateString('en-GB')}              </td>
 
               <td className="px-6 py-5">
                 {r.status === 'active' ? (
