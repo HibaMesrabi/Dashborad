@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Mail, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+// Axios للاتصال مع Laravel
+import api from '../api/axios';
 
 /*
   Forgot Password Page
@@ -15,18 +17,47 @@ const ForgotPassword = () => {
   const [success, setSuccess] = useState(false);
 
   /*
-    إرسال الرابط
-  */
-  const handleSubmit = (e) => {
+  إرسال رابط إعادة تعيين كلمة المرور
+*/
+const handleSubmit = async (e) => {
 
-    e.preventDefault();
+  // منع إعادة تحميل الصفحة
+  e.preventDefault();
 
-    console.log('Send reset link to:', email);
+  try {
+
+    // إرسال الإيميل إلى Laravel
+    const response = await api.post('/password/email', {
+
+      email
+
+    });
+
+    // إظهار رسالة النجاح
+    alert(response.data.message);
 
     setSuccess(true);
 
-  };
+  }
 
+  catch (error) {
+
+    // إظهار رسالة الخطأ القادمة من Laravel
+    if (error.response) {
+
+      alert(error.response.data.message);
+
+    }
+
+    else {
+
+      alert("حدث خطأ أثناء إرسال الرابط.");
+
+    }
+
+  }
+
+};
   return (
 
     <div
