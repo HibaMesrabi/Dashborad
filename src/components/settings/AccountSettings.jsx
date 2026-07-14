@@ -1,9 +1,10 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import {
   UserCircle,
   Save,
   Lock
 } from 'lucide-react';
+import api from '../../api/axios';
 
 /*
   Account Settings
@@ -19,15 +20,17 @@ import {
 
 const AccountSettings = () => {
   /*
-    الاسم الحالي
-  */
-  const [fullName] =
-    useState('Admin');
+      الاسم الحالي
+      جاي من /admin/settings/account
+    */
+  const [fullName, setFullName] =
+    useState('');
   /*
     البريد الإلكتروني الحالي
+    جاي من /admin/settings/account
   */
-  const [email] =
-    useState('admin@gmail.com');
+  const [email, setEmail] =
+    useState('');
   /*
     الصورة الشخصية
     سيتم استخدامها لاحقاً
@@ -53,24 +56,96 @@ const AccountSettings = () => {
     setConfirmPassword] =
     useState('');
   /*
+  أخطاء الـ validation
+  (من الباك اند)
+*/
+  const [errors, setErrors] =
+    useState({});
+  /*
+    رسالة النجاح
+  */
+  const [successMessage, setSuccessMessage] =
+    useState('');
+  /*
+    حالة الحفظ (تعطيل الزر أثناء الإرسال)
+  */
+  const [saving, setSaving] =
+    useState(false);
+  /*
     مرجع لاختيار الصورة
     سيستخدم لاحقاً
   */
   const fileRef =
     useRef(null);
   /*
+      جلب بيانات الحساب الحالي
+      (الاسم والإيميل) عند تحميل الصفحة
+    */
+  useEffect(() => {
+
+    const fetchAccountData = async () => {
+
+      try {
+
+        const response = await api.get('/admin/settings/account');
+
+        setFullName(response.data.name);
+        setEmail(response.data.email);
+
+      } catch (err) {
+
+        // تجاهل الخطأ هون، الحقول رح تظل فاضية
+
+      }
+
+    };
+
+    fetchAccountData();
+
+  }, []);
+
+  /*
     حفظ البيانات
     تغيير كلمة المرور
   */
-  const handleSave = () => {
-    console.log(
-      'Change Password',
-      {
+  const handleSave = async () => {
+
+    setErrors({});
+    setSuccessMessage('');
+    setSaving(true);
+
+    try {
+
+      await api.patch('/admin/settings/password', {
         currentPassword,
         newPassword,
         confirmPassword
+      });
+
+      setSuccessMessage('Password changed successfully.');
+
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+
+    } catch (err) {
+
+      if (err.response?.status === 422) {
+
+        setErrors(err.response.data.errors || {});
+
+      } else {
+
+        setErrors({ general: ['Something went wrong. Please try again.'] });
+
       }
-    );
+
+    } finally {
+
+      setSaving(false);
+
+    }
+
   };
   return (
     <section
@@ -206,7 +281,7 @@ const AccountSettings = () => {
           />
         </div>
       </div>
-            {/* تغيير كلمة المرور */}
+      {/* تغيير كلمة المرور */}
       <div
         className="
           p-6
@@ -289,6 +364,12 @@ const AccountSettings = () => {
               "
             />
 
+            {errors.currentPassword && (
+              <p className="text-red-400 text-sm mt-2">
+                {errors.currentPassword[0]}
+              </p>
+            )}
+
           </div>
 
           {/* كلمة المرور الجديدة */}
@@ -330,6 +411,12 @@ const AccountSettings = () => {
                 transition
               "
             />
+
+            {errors.newPassword && (
+              <p className="text-red-400 text-sm mt-2">
+                {errors.newPassword[0]}
+              </p>
+            )}
 
           </div>
 
@@ -373,9 +460,27 @@ const AccountSettings = () => {
               "
             />
 
+            {errors.confirmPassword && (
+              <p className="text-red-400 text-sm mt-2">
+                {errors.confirmPassword[0]}
+              </p>
+            )}
+
           </div>
 
         </div>
+
+        {errors.general && (
+          <p className="text-red-400 text-sm mt-4">
+            {errors.general[0]}
+          </p>
+        )}
+
+        {successMessage && (
+          <p className="text-green-400 text-sm mt-4">
+            {successMessage}
+          </p>
+        )}
 
       </div>
 
@@ -391,6 +496,7 @@ const AccountSettings = () => {
 
         <button
           onClick={handleSave}
+          disabled={saving}
           className="
             flex
             items-center
@@ -407,12 +513,14 @@ const AccountSettings = () => {
             font-semibold
             shadow-lg
             transition
+            disabled:opacity-50
+            disabled:cursor-not-allowed
           "
         >
 
           <Save size={18} />
 
-          Save Changes
+          {saving ? 'Saving...' : 'Save Changes'}
 
         </button>
       </div>
