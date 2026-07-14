@@ -13,8 +13,7 @@ import React from 'react';
   - عدد البلاغات
 */
 
-const ReportsTable = ({ reports }) => {
-
+const ReportsTable = ({ reports, loading, pagination, onPageChange }) => {
   return (
 
     <div
@@ -98,13 +97,30 @@ const ReportsTable = ({ reports }) => {
 
           <tbody>
 
-            {reports.length > 0 ? (
+            {loading ? (
 
-              reports.map((item) => (
+              <tr>
+
+                <td
+                  colSpan="6"
+                  className="
+                    py-10
+                    text-center
+                    text-slate-400
+                  "
+                >
+                  Loading...
+                </td>
+
+              </tr>
+
+            ) : reports.length > 0 ? (
+
+              reports.map((item, index) => (
 
                 <tr
 
-                  key={item.id}
+                  key={`${item.year}-${item.month}-${index}`}
 
                   className="
                     border-t
@@ -211,6 +227,57 @@ const ReportsTable = ({ reports }) => {
         </table>
 
       </div>
+
+      {pagination && pagination.last_page > 1 && (
+
+        <div
+          className="
+            flex
+            items-center
+            justify-between
+            px-6 py-4
+            border-t
+            border-white/10
+          "
+        >
+
+          <button
+            onClick={() => onPageChange(pagination.current_page - 1)}
+            disabled={pagination.current_page <= 1}
+            className="
+              px-4 py-2
+              rounded-xl
+              bg-[#071A33]
+              text-white
+              disabled:opacity-40
+              disabled:cursor-not-allowed
+            "
+          >
+            Previous
+          </button>
+
+          <span className="text-slate-400 text-sm">
+            Page {pagination.current_page} of {pagination.last_page}
+          </span>
+
+          <button
+            onClick={() => onPageChange(pagination.current_page + 1)}
+            disabled={pagination.current_page >= pagination.last_page}
+            className="
+              px-4 py-2
+              rounded-xl
+              bg-[#071A33]
+              text-white
+              disabled:opacity-40
+              disabled:cursor-not-allowed
+            "
+          >
+            Next
+          </button>
+
+        </div>
+
+      )}
 
     </div>
 

@@ -18,55 +18,7 @@ import {
   - إجمالي البلاغات
 */
 
-const ReportsStats = ({ data }) => {
-
-  /*
-    حساب مجموع المستخدمين
-  */
-
-  const totalUsers = data.reduce(
-
-    (total, item) => total + item.users,
-
-    0
-
-  );
-
-  /*
-    حساب مجموع الشركات
-  */
-
-  const totalCompanies = data.reduce(
-
-    (total, item) => total + item.companies,
-
-    0
-
-  );
-
-  /*
-    حساب مجموع الأخبار
-  */
-
-  const totalNews = data.reduce(
-
-    (total, item) => total + item.news,
-
-    0
-
-  );
-
-  /*
-    حساب مجموع البلاغات
-  */
-
-  const totalReports = data.reduce(
-
-    (total, item) => total + item.reports,
-
-    0
-
-  );
+const ReportsStats = ({ counters }) => {
 
   /*
     مصفوفة الكروت
@@ -78,25 +30,25 @@ const ReportsStats = ({ data }) => {
 
     {
       title: 'Total Users',
-      value: totalUsers,
+      value: counters.total_users,
       icon: <Users size={26} />
     },
 
     {
       title: 'Total Companies',
-      value: totalCompanies,
+      value: counters.total_companies,
       icon: <Building2 size={26} />
     },
 
     {
       title: 'Total News',
-      value: totalNews,
+      value: counters.total_news,
       icon: <Newspaper size={26} />
     },
 
     {
       title: 'Total Reports',
-      value: totalReports,
+      value: counters.total_reports,
       icon: <FileWarning size={26} />
     }
 
