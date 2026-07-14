@@ -52,7 +52,7 @@ const ReportedContent = () => {
 
     try {
 
-      const response = await api.get('/reported');
+      const response = await api.get('/admin/reported');
 
       /*
         ReportResource::collection()

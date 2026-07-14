@@ -21,7 +21,7 @@ const ReportedTable = ({
 
   reports,
 
-  setReports
+  fetchReports
 
 }) => {
 
@@ -96,7 +96,7 @@ const saveAction = async () => {
 
       await api.patch(
 
-        `/reported/${selectedReport.id}/resolve`,
+        `/admin/reported/${selectedReport.id}/resolve`,
 
         {
 
@@ -112,7 +112,7 @@ const saveAction = async () => {
 
       await api.patch(
 
-        `/reported/${selectedReport.id}/dismiss`,
+        `/admin/reported/${selectedReport.id}/dismiss`,
 
         {
 
