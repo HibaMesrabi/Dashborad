@@ -6,19 +6,16 @@ import { Link, useNavigate } from 'react-router-dom';
 
 // أيقونة تسجيل الدخول
 import { LogIn } from 'lucide-react';
-
+// Axios للاتصال مع Laravel
+import api from '../api/axios';
 /*
-=========================================
-            Login Page
-=========================================
+Login Page
 */
 
 const Login = () => {
 
   /*
-  =========================================
-              States
-  =========================================
+States
   */
 
   // البريد الإلكتروني
@@ -33,123 +30,124 @@ const Login = () => {
   // يستخدم للتنقل بين الصفحات
   const navigate = useNavigate();
 
-  /*
-  =========================================
-          Login Function
-  =========================================
-  */
+/*
+  تسجيل الدخول باستخدام Laravel
+*/
+const handleLogin = async (e) => {
 
-  const handleLogin = (e) => {
+  // منع إعادة تحميل الصفحة
+  e.preventDefault();
 
-    // منع إعادة تحميل الصفحة
-    e.preventDefault();
+  try {
 
-    // بيانات الأدمن (مؤقتة)
-    const adminEmail = "admin@gmail.com";
-    const adminPassword = "123456";
+    // إرسال البيانات إلى Laravel
+    const response = await api.post('/login', {
 
-    // بيانات الشركة (مؤقتة)
-    const companyEmail = "company@gmail.com";
-    const companyPassword = "123456";
+      email,
+
+      password
+
+    });
 
     /*
-      التحقق من الأدمن
+      حفظ التوكن
     */
+    localStorage.setItem(
 
+      "token",
+
+      response.data.access_token
+
+    );
+
+    /*
+      حفظ نوع المستخدم
+    */
+    localStorage.setItem(
+
+      "role",
+
+      response.data.user_type.toLowerCase()
+
+    );
+
+    /*
+      حفظ البريد الإلكتروني إذا كان Remember Me مفعلاً
+    */
+    if (remember) {
+
+      localStorage.setItem(
+
+        "savedEmail",
+
+        email
+
+      );
+
+    }
+
+    else {
+
+      localStorage.removeItem(
+
+        "savedEmail"
+
+      );
+
+    }
+
+    /*
+      الانتقال حسب نوع الحساب
+    */
     if (
 
-      email === adminEmail &&
-      password === adminPassword
+      response.data.user_type.toLowerCase() === "admin"
 
     ) {
 
-      // حفظ نوع المستخدم
-      localStorage.setItem(
-        "role",
-        "admin"
-      );
-
-      // حفظ الإيميل إذا كان خيار تذكرني مفعل
-      if (remember) {
-
-        localStorage.setItem(
-          "savedEmail",
-          email
-        );
-
-      }
-
-      else {
-
-        localStorage.removeItem(
-          "savedEmail"
-        );
-
-      }
-
-      // الانتقال إلى لوحة الأدمن
       navigate("/admin-dashboard");
 
     }
 
-    /*
-      التحقق من الشركة
-    */
-
     else if (
 
-      email === companyEmail &&
-      password === companyPassword
+      response.data.user_type.toLowerCase() === "company"
 
     ) {
 
-      // حفظ نوع المستخدم
-      localStorage.setItem(
-        "role",
-        "company"
-      );
-
-      // حفظ الإيميل
-      if (remember) {
-
-        localStorage.setItem(
-          "savedEmail",
-          email
-        );
-
-      }
-
-      else {
-
-        localStorage.removeItem(
-          "savedEmail"
-        );
-
-      }
-
-      // الانتقال إلى لوحة الشركة
       navigate("/company-dashboard");
 
     }
 
-    /*
-      بيانات غير صحيحة
-    */
-
     else {
 
-      alert(
-        "البريد الإلكتروني أو كلمة المرور غير صحيحة"
-      );
+      alert("ليس لديك صلاحية للدخول.");
 
     }
 
-  };
+  }
+
+  catch (error) {
+
+    if (error.response) {
+
+      alert(error.response.data.message);
+
+    }
+
+    else {
+
+      alert("حدث خطأ أثناء تسجيل الدخول.");
+
+    }
+
+  }
+
+};
+ 
 
   /*
-  =========================================
-      استرجاع الإيميل المحفوظ
-  =========================================
+استرجاع الإيميل المحفوظ
   */
 
   useEffect(() => {
@@ -168,9 +166,7 @@ const Login = () => {
   }, []);
 
   /*
-  =========================================
-          واجهة الصفحة
-  =========================================
+واجهة الصفحة
   */
 
   return (
@@ -259,7 +255,7 @@ const Login = () => {
             focus:border-orange-500
           "
           />
-                    {/* خيارات إضافية */}
+           {/* خيارات إضافية */}
 
           <div className="flex items-center justify-between text-sm">
 
