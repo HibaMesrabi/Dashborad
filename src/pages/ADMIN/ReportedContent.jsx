@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 /*
   Layout الخاص بلوحة تحكم الأدمن
@@ -13,144 +13,79 @@ import ReportedFilters from '../../components/reported/ReportedFilters';
 import ReportedTable from '../../components/reported/ReportedTable';
 
 /*
+  Axios لإرسال الطلبات إلى Laravel
+*/
+import api from '../../api/axios';
+
+/*
   صفحة إدارة المحتوى المبلغ عنه
 */
 
 const ReportedContent = () => {
 
   /*
-    بيانات تجريبية
-    لاحقاً سيتم جلبها من Laravel API
+    جميع البلاغات القادمة من Laravel
   */
-
-  const [reports, setReports] = useState([
-
-    {
-      // رقم البلاغ
-      id: 1,
-
-      // الشخص الذي قام بالإبلاغ
-      reporter_name: "Ahmad Khaled",
-
-      // نوع العنصر المبلغ عنه
-      reportable_type: "post",
-
-      // عنوان المنشور
-      reported_item: "AI Conference 2025",
-
-      // سبب البلاغ
-      reason: "Spam",
-
-      // حالة البلاغ
-      status: "pending",
-
-      // تاريخ إنشاء البلاغ
-      created_at: "2025-07-10",
-
-      // ملاحظة الأدمن
-      admin_notes: ""
-    },
-
-    {
-      id: 2,
-
-      reporter_name: "Sara Ali",
-
-      reportable_type: "account",
-
-      reported_item: "Future Tech Company",
-
-      reason: "Fake Account",
-
-      status: "dismissed",
-
-      created_at: "2025-07-08",
-
-      admin_notes: "The report was reviewed and dismissed because no violation was found."
-    },
-
-    {
-      id: 3,
-
-      reporter_name: "Mohammad Hasan",
-
-      reportable_type: "post",
-
-      reported_item: "New AI Chip Released",
-
-      reason: "Fake News",
-
-      status: "resolved",
-
-      created_at: "2025-07-05",
-
-      admin_notes: "The reported post violated our community guidelines and has been removed."
-    },
-
-    {
-      id: 4,
-
-      reporter_name: "Noor Ahmad",
-
-      reportable_type: "account",
-
-      reported_item: "Ahmed Mohammed",
-
-      reason: "Harassment",
-
-      status: "pending",
-
-      created_at: "2025-07-03",
-
-      admin_notes: ""
-    },
-
-    {
-      id: 5,
-
-      reporter_name: "Lina Omar",
-
-      reportable_type: "post",
-
-      reported_item: "Cyber Security Summit",
-
-      reason: "Misleading Information",
-
-      status: "pending",
-
-      created_at: "2025-07-01",
-
-      admin_notes: ""
-    }
-
-  ]);
+  const [reports, setReports] = useState([]);
 
   /*
     قيمة البحث
   */
-
   const [search, setSearch] = useState('');
 
   /*
     فلترة الحالة
   */
-
   const [selectedStatus, setSelectedStatus] =
     useState('All');
 
   /*
     فلترة النوع
   */
-
   const [selectedType, setSelectedType] =
     useState('All');
 
   /*
+    جلب البلاغات من Laravel
+  */
+  const fetchReports = async () => {
+
+    try {
+
+      const response = await api.get('/reported');
+
+      /*
+        ReportResource::collection()
+        ترجع البيانات داخل data
+      */
+      setReports(response.data.data);
+
+    } catch (error) {
+
+      console.error('Error Loading Reports :', error);
+
+    }
+
+  };
+
+  /*
+    عند فتح الصفحة
+    يتم جلب جميع البلاغات
+  */
+  useEffect(() => {
+
+    fetchReports();
+
+  }, []);
+
+  /*
     فلترة البيانات
   */
+  const filteredReports = reports.filter((report) => {
 
-  const filteredReports = reports.filter((report) => {    // البحث
-
+    /*
+      البحث
+    */
     const matchesSearch =
 
       report.reported_item
@@ -169,8 +104,9 @@ const ReportedContent = () => {
         .toLowerCase()
         .includes(search.toLowerCase());
 
-    // فلترة الحالة
-
+    /*
+      فلترة الحالة
+    */
     const matchesStatus =
 
       selectedStatus === "All"
@@ -179,8 +115,9 @@ const ReportedContent = () => {
 
         : report.status === selectedStatus;
 
-    // فلترة النوع
-
+    /*
+      فلترة النوع
+    */
     const matchesType =
 
       selectedType === "All"
@@ -200,35 +137,11 @@ const ReportedContent = () => {
     );
 
   });
-
-  return (
+    return (
 
     <AdminLayout>
 
-      {/* عنوان الصفحة */}
-
-      <div className="mb-8">
-
-        <h1
-          className="
-            text-3xl
-            font-bold
-            text-white
-            mb-2
-          "
-        >
-          Reported Content
-        </h1>
-
-        <p className="text-slate-400">
-
-          Review and manage all reported posts and accounts.
-
-        </p>
-
-      </div>
-
-      {/* كروت الإحصائيات */}
+      {/* الإحصائيات */}
 
       <ReportedStats
 
@@ -241,12 +154,15 @@ const ReportedContent = () => {
       <ReportedFilters
 
         search={search}
+
         setSearch={setSearch}
 
         selectedStatus={selectedStatus}
+
         setSelectedStatus={setSelectedStatus}
 
         selectedType={selectedType}
+
         setSelectedType={setSelectedType}
 
       />
@@ -257,7 +173,7 @@ const ReportedContent = () => {
 
         reports={filteredReports}
 
-        setReports={setReports}
+        fetchReports={fetchReports}
 
       />
 

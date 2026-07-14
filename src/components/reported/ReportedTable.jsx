@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import api from '../../api/axios';
 
 import {
 
@@ -84,38 +85,62 @@ const ReportedTable = ({
   /*
     حفظ الملاحظة وتغيير الحالة
   */
+/*
+  إرسال القرار إلى Laravel
+*/
+const saveAction = async () => {
 
-  const saveAction = () => {
+  try {
 
-    const updated = reports.map((report) =>
+    if (actionType === "resolved") {
 
-      report.id === selectedReport.id
+      await api.patch(
 
-        ? {
+        `/reported/${selectedReport.id}/resolve`,
 
-            ...report,
+        {
 
-            status:
+          admin_notes: adminNote
 
-              actionType === "resolved"
+        }
 
-                ? "resolved"
+      );
 
-                : "dismissed",
+    }
 
-            admin_notes: adminNote
+    else {
 
-          }
+      await api.patch(
 
-        : report
+        `/reported/${selectedReport.id}/dismiss`,
 
-    );
+        {
 
-    setReports(updated);
+          admin_notes: adminNote
+
+        }
+
+      );
+
+    }
+
+    /*
+      تحديث البيانات من قاعدة البيانات
+    */
+
+    await fetchReports();
 
     closeModal();
 
-  };
+  }
+
+  catch (error) {
+
+    console.error(error);
+
+  }
+
+};
 
   return (
 
