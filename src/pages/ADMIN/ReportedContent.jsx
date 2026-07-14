@@ -141,6 +141,18 @@ const ReportedContent = () => {
 
     <AdminLayout>
 
+      {/* عنوان الصفحة */}
+
+<div className="mb-8">
+
+  <h1 className="text-3xl font-bold text-white">
+
+    Reported Content
+
+  </h1>
+
+</div>
+
       {/* الإحصائيات */}
 
       <ReportedStats

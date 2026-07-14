@@ -230,23 +230,18 @@ const handleDelete = async () => {
 
           </h1>
 
-          <p className="text-slate-400 mt-2">
-
-            Manage subscription packages and company subscriptions.
-
-          </p>
 
         </div>
 
         {
 
-          tab === 'plans' && (
+          tab === 'plans' && ( // زر إضافة باقة فقط عند التبويب الخاص بالباقة
 
             <button
 
-              onClick={() => {
+              onClick={() => { // فتح نافذة إضافة باقة جديدة
 
-                setEditing(null);
+                setEditing(null); 
 
                 setModalOpen(true);
 

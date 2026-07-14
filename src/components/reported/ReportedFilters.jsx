@@ -53,7 +53,7 @@ const ReportedFilters = ({
 
           type="text"
 
-          placeholder="Search by reporter, reported item or reason..."
+          placeholder="Search by reporter . . "
 
           value={search}
 
